@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="uk"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Neon City</title>
+<style>
+:root{--ui:rgba(14,16,26,.55);--fg:#fff;--bg:#1b1522}
+@media(prefers-color-scheme:dark){:root{--ui:rgba(14,16,26,.62)}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;touch-action:none}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--fg);font:600 13px system-ui,sans-serif}
+#gl{display:block;width:100%;height:100%}
+.b{position:fixed;display:flex;align-items:center;justify-content:center;background:var(--ui);border:2px solid rgba(255,255,255,.4);border-radius:50%;text-align:center}
+#joy{left:calc(20px + env(safe-area-inset-left,0px));bottom:calc(26px + env(safe-area-inset-bottom,0px));width:136px;height:136px}
+#kn{position:absolute;left:50%;top:50%;width:58px;height:58px;margin:-29px 0 0 -29px;border-radius:50%;background:rgba(255,255,255,.8)}
+#fire{right:calc(22px + env(safe-area-inset-right,0px));bottom:calc(40px + env(safe-area-inset-bottom,0px));width:98px;height:98px;background:rgba(255,60,90,.6);font-size:15px}
+#car{right:calc(134px + env(safe-area-inset-right,0px));bottom:calc(84px + env(safe-area-inset-bottom,0px));width:68px;height:68px;font-size:12px;display:none}
+.ab{display:none;width:76px;height:76px;font-size:28px;border-radius:18px}
+body.c .ab{display:flex}body.c #joy,body.c #fire,body.c #wbtn{display:none}
+#al{left:calc(20px + env(safe-area-inset-left,0px));bottom:calc(46px + env(safe-area-inset-bottom,0px))}
+#rightArrow{left:calc(106px + env(safe-area-inset-left,0px));bottom:calc(46px + env(safe-area-inset-bottom,0px))}
+#au{right:calc(22px + env(safe-area-inset-right,0px));bottom:calc(132px + env(safe-area-inset-bottom,0px))}
+#ad{right:calc(22px + env(safe-area-inset-right,0px));bottom:calc(46px + env(safe-area-inset-bottom,0px))}
+#wbtn{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));right:calc(10px + env(safe-area-inset-right,0px));padding:11px 16px;background:var(--ui);border:2px solid rgba(255,255,255,.4);border-radius:14px}
+#shop{right:calc(214px + env(safe-area-inset-right,0px));bottom:calc(84px + env(safe-area-inset-bottom,0px));width:68px;height:68px;font-size:12px;display:none}
+#shopui{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(10,8,20,.6);z-index:6}
+#sl{background:var(--ui);backdrop-filter:blur(6px);border:2px solid rgba(255,255,255,.4);border-radius:16px;padding:14px;min-width:260px;font-size:15px}
+.it{display:flex;justify-content:space-between;gap:14px;padding:13px;margin:6px 0;background:rgba(255,255,255,.14);border-radius:10px}
+#armorBar{width:130px;height:6px;background:rgba(0,0,0,.5);border-radius:6px;overflow:hidden;margin-bottom:6px}#arb{height:100%;width:0;background:#38bdf8}
+#wheel{position:fixed;inset:0;display:none;background:rgba(10,8,20,.5);z-index:5}
+.ws{position:absolute;width:80px;height:80px;margin:-40px 0 0 -40px;border-radius:50%;background:var(--ui);border:2px solid rgba(255,255,255,.4);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:24px;text-align:center;line-height:1.1}
+.ws small{font-size:10px}.ws.on{background:rgba(255,60,90,.85);border-color:#fff}
+#hud{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));left:calc(12px + env(safe-area-inset-left,0px));pointer-events:none;text-shadow:0 1px 3px #000}
+#hp{width:130px;height:10px;background:rgba(0,0,0,.5);border-radius:6px;overflow:hidden;margin-bottom:6px}
+#hpb{height:100%;width:100%;background:#4ade80}
+#map{position:fixed;left:calc(10px + env(safe-area-inset-left,0px));top:calc(66px + env(safe-area-inset-top,0px));width:88px;height:88px;border-radius:10px;border:2px solid rgba(255,255,255,.72);background:#17202a;pointer-events:auto;box-shadow:0 3px 14px #0008;z-index:2;opacity:.86}
+#mapFull{position:fixed;inset:0;z-index:12;display:none;align-items:center;justify-content:center;background:rgba(4,8,14,.94);padding:18px}
+#mapFull.open{display:flex}#mapPanel{position:relative;width:min(94vw, min(78vh,680px));height:min(94vw, min(78vh,680px));max-width:680px;max-height:680px;border:2px solid #9bb4c8;border-radius:14px;overflow:hidden;background:#17202a;box-shadow:0 12px 50px #000}
+#bigMap{width:100%;height:100%;display:block}#mapClose{position:absolute;right:10px;top:10px;border:1px solid #ffffff80;border-radius:10px;background:#101827e8;color:white;padding:10px 14px;font:600 14px system-ui;z-index:2}
+#mapLegend{position:absolute;left:10px;bottom:10px;padding:8px 10px;background:#101827dd;border-radius:8px;font-size:12px;line-height:1.7;pointer-events:none}
+#cx{position:fixed;left:50%;top:50%;width:26px;height:26px;margin:-13px 0 0 -13px;border:2px solid #fff;border-radius:50%;pointer-events:none;opacity:.9;transition:transform .1s}
+#cx:after{content:"";position:absolute;left:50%;top:50%;width:4px;height:4px;margin:-2px 0 0 -2px;background:#fff;border-radius:50%}
+body.shift-lock #cx{width:10px;height:10px;margin:-5px 0 0 -5px;border:2px solid #fff;border-radius:2px;background:rgba(0,0,0,.18);opacity:.95}
+body.shift-lock #cx:after{width:2px;height:2px;margin:-1px 0 0 -1px;border-radius:0}
+body.pointer-locked{cursor:none}
+#cx.h{border-color:#ff3355;transform:scale(1.45)}
+#hurt{position:fixed;inset:0;pointer-events:none;opacity:0;background:radial-gradient(transparent 40%,rgba(255,0,30,.65))}
+#msg{z-index:9;position:fixed;left:0;right:0;top:38%;text-align:center;font-size:30px;letter-spacing:2px;pointer-events:none;opacity:0;text-shadow:0 2px 8px #000;transition:opacity .3s}
+#extras{position:fixed;right:calc(10px + env(safe-area-inset-right,0px));top:calc(10px + env(safe-area-inset-top,0px));display:flex;flex-direction:column;align-items:flex-end;gap:6px;z-index:4;pointer-events:none}#extras button{pointer-events:auto;background:#101827eF;color:#fff;border:1px solid #ffffff80;border-radius:10px;padding:10px 13px;font:700 12px system-ui;box-shadow:0 2px 8px #0007}#wanted{color:#ffd43b;font-size:17px;letter-spacing:2px;text-shadow:0 2px 4px #000}#missionText{margin-top:2px;max-width:150px;font-size:11px;color:#fff;text-align:right;text-shadow:0 2px 4px #000}#extrasPanel{display:none;flex-direction:column;gap:7px;align-items:stretch;padding:8px;background:#080e1bdc;border:1px solid #ffffff55;border-radius:13px;pointer-events:auto;backdrop-filter:blur(8px)}#extras.open #extrasPanel{display:flex}#extrasPanel button{min-width:124px;text-align:left}#menuToggle{min-width:86px;text-align:center}#garageUI{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:#050914dd;z-index:15;padding:14px}#garagePanel{width:min(92vw,390px);max-height:85vh;overflow:auto;background:#182232;border:2px solid #7adfff;border-radius:16px;padding:14px}#garagePanel h2{margin:4px 0 12px;text-align:center}#garagePanel .it{background:#ffffff18}#tip{position:fixed;left:50%;top:16%;transform:translateX(-50%);width:min(42%,250px);min-width:130px;text-align:center;font-size:11px;pointer-events:none;text-shadow:0 1px 3px #000;transition:opacity 1s}
+#flightThrottle{position:fixed;right:calc(18px + env(safe-area-inset-right,0px));bottom:calc(220px + env(safe-area-inset-bottom,0px));display:none;z-index:4;background:#101827eF;color:#fff;border:2px solid #ffffff90;border-radius:14px;padding:13px 16px;font:800 12px system-ui;box-shadow:0 3px 12px #0008}body.air #flightThrottle{display:block}body.air #fire{display:none}#flightHud{position:fixed;left:50%;top:calc(10px + env(safe-area-inset-top,0px));transform:translateX(-50%);display:none;background:#101827d9;border:1px solid #ffffff70;border-radius:10px;padding:7px 11px;font-size:12px;pointer-events:none;text-shadow:0 1px 3px #000;z-index:3}body.air #flightHud{display:block}
+@media(max-width:600px){#flightThrottle{right:14px;bottom:calc(205px + env(safe-area-inset-bottom,0px));padding:11px 13px}}
+
+/* Tesla Roadster: independent flight controls */
+#teslaFlightBtn{display:none;position:fixed;right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(24px + env(safe-area-inset-bottom,0px));z-index:8;border:2px solid #8df7ff;border-radius:14px;background:#082b38ee;color:#eaffff;padding:14px 18px;font:900 13px system-ui;box-shadow:0 0 18px #16d9e955}
+body.teslaCar #teslaFlightBtn{display:block}
+#teslaFlightUI{display:none;position:fixed;inset:0;z-index:7;pointer-events:none}
+body.teslaFlight #teslaFlightUI{display:block}
+body.teslaFlight #teslaFlightBtn{bottom:calc(16px + env(safe-area-inset-bottom,0px));right:calc(16px + env(safe-area-inset-right,0px));background:#087d88ee}
+body.teslaFlight #joy,body.teslaFlight #fire,body.teslaFlight #al,body.teslaFlight #rightArrow,body.teslaFlight #au,body.teslaFlight #ad{display:none!important}
+#teslaJoy{position:absolute;left:calc(16px + env(safe-area-inset-left,0px));bottom:calc(20px + env(safe-area-inset-bottom,0px));width:126px;height:126px;border:2px solid #d8ffffaa;border-radius:50%;background:#061a26a8;pointer-events:auto;touch-action:none;box-shadow:0 3px 18px #0008}
+#teslaJoy:before{content:'';position:absolute;left:50%;top:50%;width:48px;height:48px;margin:-24px;border-radius:50%;background:#d9fbffcc;border:2px solid #fff}
+#teslaKnob{position:absolute;left:50%;top:50%;width:42px;height:42px;margin:-21px;border-radius:50%;background:#19c7d9;border:2px solid #fff;box-shadow:0 2px 10px #0008;pointer-events:none}
+#teslaVertical{position:absolute;right:calc(18px + env(safe-area-inset-right,0px));bottom:calc(88px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:10px;pointer-events:auto}
+.teslaControl{min-width:72px;min-height:58px;border:2px solid #d8ffffaa;border-radius:15px;background:#092a3aeb;color:#fff;font:900 12px system-ui;touch-action:none;box-shadow:0 3px 12px #0008}
+#teslaWallBtn{min-width:90px;background:#49326fee;border-color:#d9b8ff}
+body.teslaFlight #flightHud{display:block}
+@media(max-width:600px){#teslaJoy{width:112px;height:112px;left:12px;bottom:calc(16px + env(safe-area-inset-bottom,0px))}#teslaVertical{right:12px;bottom:calc(82px + env(safe-area-inset-bottom,0px))}.teslaControl{min-width:66px;min-height:54px}#teslaFlightBtn{padding:12px 15px}}
+
+@media(max-width:600px){#joy{width:112px;height:112px;left:12px;bottom:calc(18px + env(safe-area-inset-bottom,0px))}#kn{width:48px;height:48px;margin:-24px 0 0 -24px}#fire{width:78px;height:78px;right:14px;bottom:calc(24px + env(safe-area-inset-bottom,0px));font-size:13px}#car{right:calc(100px + env(safe-area-inset-right,0px));bottom:calc(56px + env(safe-area-inset-bottom,0px));width:58px;height:58px}#al{left:12px;bottom:calc(28px + env(safe-area-inset-bottom,0px))}#rightArrow{left:82px;bottom:calc(28px + env(safe-area-inset-bottom,0px))}#au{right:14px;bottom:calc(112px + env(safe-area-inset-bottom,0px))}#ad{right:14px;bottom:calc(28px + env(safe-area-inset-bottom,0px))}#shop{right:calc(174px + env(safe-area-inset-right,0px));bottom:calc(56px + env(safe-area-inset-bottom,0px));width:58px;height:58px}#hud{font-size:11px}#hp{width:105px}#armorBar{width:105px}#mapPanel{width:min(88vw,78vh);height:min(88vw,78vh)}#mapLegend{font-size:10px;padding:6px 8px}}
+
+/* In-game phone and developer menu */
+#phoneUI,#devUI{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(2,5,12,.78);z-index:30;padding:max(8px,env(safe-area-inset-top,0px)) max(8px,env(safe-area-inset-right,0px)) max(8px,env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px));touch-action:pan-y;overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+#phoneUI.open,#devUI.open{display:flex}
+#phoneShell{width:min(340px,calc(100vw - 24px),calc((var(--app-vh, 1vh)*100 - 20px)*.58));height:min(650px,calc(var(--app-vh, 1vh)*100 - 20px));max-height:calc(var(--app-vh, 1vh)*100 - 16px);min-height:0;border:clamp(4px,1.6vw,7px) solid #171b24;border-radius:clamp(20px,8vw,34px);background:linear-gradient(155deg,#1d3144,#090f1c 62%);box-shadow:0 18px 70px #000c;padding:clamp(8px,3.5vw,18px) clamp(8px,3vw,16px) clamp(8px,3vw,16px);display:flex;flex-direction:column;gap:clamp(4px,1.7vh,12px);position:relative;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y}
+#phoneTop{display:flex;justify-content:space-between;color:#c8e9ff;font-size:11px;padding:2px 7px}
+#phoneTitle{text-align:center;font-size:clamp(15px,4.8vw,20px);letter-spacing:2px;color:#72e7ff;text-shadow:0 0 12px #26c8ff;margin:clamp(1px,1vh,8px) 0;flex:0 0 auto}
+#phoneNumber{height:clamp(38px,8vh,54px);min-height:34px;flex:0 0 auto;border-radius:12px;background:#050b13;border:1px solid #4d718a;color:#fff;font-size:clamp(19px,6vw,27px);letter-spacing:clamp(2px,1.3vw,5px);text-align:center;padding:6px;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+#phoneHint{text-align:center;color:#9db5c8;font-size:clamp(9px,2.8vw,11px);min-height:12px;flex:0 0 auto}
+#phoneKeys{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(4,minmax(0,1fr));gap:clamp(4px,1.5vh,10px);flex:1 1 0;min-height:0;align-content:stretch;justify-items:center;overflow:hidden}
+.phoneKey{border:1px solid #ffffff35;border-radius:50%;aspect-ratio:1/1;width:min(100%,68px);height:auto;max-height:100%;align-self:center;background:linear-gradient(145deg,#31475b,#152334);color:#fff;font-size:clamp(17px,6vw,25px);font-weight:700;box-shadow:0 4px 10px #0007;touch-action:manipulation; padding:0}
+.phoneKey small{display:block;font-size:8px;letter-spacing:2px;color:#8da9bd}
+#phoneActions{display:grid;grid-template-columns:1fr 1.3fr 1fr;gap:clamp(4px,1.5vw,8px);flex:0 0 auto}
+.phoneAction{border:0;border-radius:10px;padding:clamp(8px,1.8vh,13px) 3px;background:#263c50;color:white;font-weight:800;font-size:clamp(9px,2.8vw,12px);touch-action:manipulation;min-width:0}
+#phoneCall{background:linear-gradient(135deg,#16a56a,#08794b);font-size:14px}
+#phoneClose{position:absolute;right:clamp(8px,2.5vw,16px);top:clamp(6px,1.5vh,12px);border:0;background:#ffffff18;color:#fff;border-radius:50%;width:clamp(25px,7vw,30px);height:clamp(25px,7vw,30px);font-size:18px;z-index:2}
+#devPanel{width:min(430px,95vw);max-height:calc(var(--app-vh,1vh)*100 - 24px);overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;background:linear-gradient(160deg,#172b3e,#090f19);border:2px solid #37dfff;border-radius:20px;padding:16px;box-shadow:0 0 35px #00bde755;color:white;touch-action:pan-y;flex:0 0 auto}
+#devPanel *{touch-action:pan-y}
+#devUI{overscroll-behavior:contain}
+#devPanel button{user-select:none;-webkit-user-select:none}
+#devPanel h2{text-align:center;color:#6ceaff;margin:4px 0 4px;letter-spacing:2px}
+#devPanel p{text-align:center;color:#9db5c8;font-size:11px;margin:0 0 14px}
+.devSection{font-size:11px;color:#62dff5;letter-spacing:1.5px;margin:14px 0 7px}
+.devGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.devBtn{border:1px solid #ffffff2b;border-radius:11px;padding:12px 8px;background:#20364b;color:white;font-weight:700;font-size:12px;min-height:46px;touch-action:pan-y}
+.devBtn:active,.phoneKey:active{filter:brightness(1.35);transform:scale(.97)}
+#devClose{width:100%;margin-top:14px;background:#8d3044}
+@media(max-height:560px){#phoneShell{height:calc(var(--app-vh, 1vh)*100 - 12px);padding:6px 10px;gap:3px;border-radius:20px}#phoneTop{font-size:9px}#phoneTitle{margin:0;font-size:15px}#phoneKeys{gap:3px}.phoneKey{width:min(100%,48px);font-size:18px}#phoneNumber{height:34px;min-height:30px;font-size:19px;padding:3px}#phoneHint{min-height:10px;font-size:9px}.phoneAction{padding:6px 2px;font-size:9px}}
+@media(orientation:landscape) and (max-height:520px){#phoneShell{width:min(420px,calc(100vw - 20px));height:calc(var(--app-vh, 1vh)*100 - 12px);padding:5px 12px;gap:3px}#phoneKeys{grid-template-columns:repeat(3,minmax(0,1fr))}.phoneKey{width:min(100%,43px)}#phoneTitle{font-size:14px;margin:0}#phoneNumber{height:30px;min-height:28px}#phoneActions .phoneAction{padding:5px 2px}}
+
+#teslaWallBtn{display:none!important}#baseBtn{border-color:#e5c56b;color:#ffe7a3}#tankFireBtn{position:fixed;right:calc(24px + env(safe-area-inset-right,0px));bottom:calc(42px + env(safe-area-inset-bottom,0px));z-index:8;display:none;width:78px;height:78px;border-radius:18px;border:2px solid #d7c18b;background:#45351e;color:#fff;font:900 12px system-ui}#tankFireBtn.show{display:flex;align-items:center;justify-content:center}#nukeBtn{position:fixed;right:calc(18px + env(safe-area-inset-right,0px));top:calc(82px + env(safe-area-inset-top,0px));z-index:8;display:none;padding:13px 17px;border:2px solid #b7e68b;border-radius:12px;background:#18351b;color:#efffe7;font:900 14px system-ui;box-shadow:0 4px 18px #0009}#nukeBtn.show{display:block}#cinema{position:fixed;inset:0;z-index:30;display:none;align-items:center;justify-content:center;background:#02040a;color:#fff;text-align:center;font:900 clamp(24px,6vw,54px) system-ui;letter-spacing:3px;text-shadow:0 0 20px #fff;padding:24px}#cinema.show{display:flex}#cinema small{display:block;font-size:14px;letter-spacing:1px;margin-top:18px;font-weight:600}#cinema button{margin-top:24px;background:#17351c;color:white;border:2px solid #a8d58b;border-radius:12px;padding:12px 20px;font-weight:800}#baseHint{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);display:none;z-index:8;background:#111c2aee;border:1px solid #e5c56b;border-radius:12px;padding:10px 14px;text-align:center;max-width:min(92vw,360px);pointer-events:none}#baseHint.show{display:block}#gren{right:calc(22px + env(safe-area-inset-right,0px));bottom:calc(150px + env(safe-area-inset-bottom,0px));width:60px;height:60px;font-size:24px}body.c #gren{display:none}
+/* Neon City online room */
+#onlineUI{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;padding:16px;background:#030914eF;touch-action:pan-y}
+#onlineUI.open{display:flex}
+#onlinePanel{width:min(94vw,420px);max-height:90vh;overflow:auto;background:linear-gradient(155deg,#172b3e,#090f19);border:2px solid #37dfff;border-radius:18px;padding:17px;color:#fff;box-shadow:0 0 35px #00bde755;touch-action:pan-y}
+#onlinePanel h2{margin:0 0 8px;text-align:center;color:#6ceaff;letter-spacing:1px}
+#onlinePanel p{color:#b8cbd8;font-size:12px;line-height:1.5}
+#onlinePanel label{display:block;margin:10px 0 5px;color:#9feaff;font-size:12px}
+#onlinePanel input{display:block;width:100%;padding:12px;border-radius:10px;border:1px solid #52758b;background:#071321;color:white;font:600 14px system-ui;touch-action:manipulation;user-select:text;-webkit-user-select:text}
+#onlinePanel button{width:100%;margin-top:9px;padding:12px;border:1px solid #ffffff44;border-radius:10px;background:#16465a;color:white;font-weight:800;touch-action:manipulation}
+#onlinePanel button.secondary{background:#29384a}
+#onlineStatus{margin:10px 0;padding:10px;border-radius:9px;background:#ffffff12;color:#d8f5ff;font-size:12px;line-height:1.5;overflow-wrap:anywhere}
+#onlineClose{background:#713344!important}
+#onlineRoomCode{font-size:23px!important;letter-spacing:5px;text-align:center;font-weight:900}
+
+</style></head><body>
+<div id="hud"><div id="hp"><div id="hpb"></div></div><div id="armorBar"><div id="arb"></div></div><div id="ks">Вбито: 0</div></div>
+<canvas id="map" width="180" height="180" title="Натисни, щоб відкрити карту"></canvas><div id="mapFull"><div id="mapPanel"><canvas id="bigMap" width="700" height="700"></canvas><button id="mapClose">✕ Закрити</button><div id="mapLegend">🔵 Ти　🟡 Магазини　🔴 Небезпека　⚪ Люди　🚗 Авто　✈️ Аеропорт　🟨 Військова база　🔵 Банк</div></div></div>
+<div id="wbtn"></div><div id="cx"></div><div id="hurt"></div><div id="msg"></div>
+<div id="tip">ПК: WASD — рух, миша — камера, Shift — Shift Lock, ЛКМ — стріляти, ПКМ — приціл/зум, колесо — зброя, R — меню зброї, G — граната, T — головне меню, E/F — сісти/вийти (у літаку/Tesla — вгору), Q — вниз. Магазин відкривай кнопкою «Купити» поруч із продавцем. Телефон: джойстик і кнопки. Військова база FORT NEON позначена на карті; меню дає доступ до військового гаража, банку та нерухомості. Аеропорт позначений на карті: літак — ТЯГА для розгону, ▲ набір висоти, ▼ зниження, ◀ ▶ поворот. Tesla Roadster: звичайна їзда; кнопка ПОЛІТ вмикає безтяговий режим зависання, джойстик керує рухом, ВГОРУ/ВНИЗ — висотою. Заходь у магазини (жовті крапки на карті): купуй зброю або грабуй продавця прицілом!</div>
+<div id="joy" class="b"><div id="kn"></div></div>
+<div id="car" class="b"></div><button id="flightThrottle">ТЯГА: ВИМК</button><div id="flightHud">Висота: 0 м · Швидкість: 0</div><button id="teslaFlightBtn">ПОЛІТ</button><div id="teslaFlightUI"><div id="teslaJoy"><div id="teslaKnob"></div></div><div id="teslaVertical"><button class="teslaControl" data-tmove="up">▲ ВГОРУ</button><button class="teslaControl" data-tmove="down">▼ ВНИЗ</button><button class="teslaControl" id="teslaWallBtn">СТІНИ: ВИМК</button></div></div>
+<div id="fire" class="b">ОГОНЬ</div><div id="gren" class="b">💣</div>
+<div class="b ab" id="al" data-k="l">◀</div><div class="b ab" id="rightArrow" data-k="r">▶</div><div class="b ab" id="au" data-k="u">▲</div><div class="b ab" id="ad" data-k="d">▼</div>
+<div id="wheel"></div><div id="shopui"><div id="sl"></div></div><div id="shop" class="b">🛒<br>Купити</div>
+<div id="extras"><div id="wanted"></div><div id="missionText"></div><button id="menuToggle">☰ МЕНЮ</button><div id="extrasPanel"><button id="mapBtn">КАРТА</button><button id="missionBtn">МІСІЇ</button><button id="garageBtn">ГАРАЖ</button><button id="homeBtn">СХОВИЩЕ</button><button id="phoneBtn">ТЕЛЕФОН</button><button id="baseBtn">ВІЙСЬКОВА БАЗА</button><button id="onlineBtn">ОНЛАЙН · КІМНАТА</button></div></div><div id="baseHint"></div><button id="nukeBtn">ЯДЕРКА</button><button id="tankFireBtn">ВОГОНЬ<br>ТАНК</button><div id="cinema"><div id="cinemaText">ОСТАННІЙ ПОЛІТ<small>NEON CITY</small></div></div><div id="phoneUI"><div id="phoneShell"><button id="phoneClose">×</button><div id="phoneTop"><span>NEON MOBILE</span><span>● ● ●  LTE</span></div><div id="phoneTitle">ТЕЛЕФОН</div><div id="phoneNumber">_ _ _ _</div><div id="phoneHint">Введи номер і натисни виклик</div><div id="phoneKeys"></div><div id="phoneActions"><button class="phoneAction" id="phoneBack">⌫</button><button class="phoneAction" id="phoneCall">ВИКЛИК</button><button class="phoneAction" id="phoneClear">ОЧИСТИТИ</button></div></div></div><div id="devUI"><div id="devPanel"><h2>DEVELOPER MODE</h2><p>NEON CITY · СИСТЕМНА КОНСОЛЬ</p><div class="devSection">ГРАВЕЦЬ</div><div class="devGrid"><button class="devBtn" data-dev="health">♥ Здоров’я: 9 999 999/9 999 999</button><button class="devBtn" data-dev="armor">▣ Броня: 9 999 999/9 999 999</button><button class="devBtn" data-dev="heal">♥ Повне відновлення</button><button class="devBtn" data-dev="wanted">★ Скинути розшук</button></div><div class="devSection">ГРОШІ</div><div class="devGrid"><button class="devBtn" data-dev="cash1">+$1 000</button><button class="devBtn" data-dev="cash10">+$10 000</button><button class="devBtn" data-dev="cash100">+$100 000</button><button class="devBtn" data-dev="cashmax">$999 999</button></div><div class="devSection">ТРАНСПОРТ — СПАВН ПОРУЧ</div><div class="devGrid"><button class="devBtn" data-dev="car">🚗 Спавн авто</button><button class="devBtn" data-dev="sport">🏎 Спорткар</button><button class="devBtn" data-dev="heli">🚁 Гелікоптер</button><button class="devBtn" data-dev="plane">✈ Літак</button><button class="devBtn" data-dev="tesla">🚙 Tesla Roadster</button><button class="devBtn" data-dev="tank">🪖 Бойовий танк</button></div><button class="devBtn" id="devClose">ЗАКРИТИ МЕНЮ РОЗРОБНИКА</button></div></div><div id="garageUI"><div id="garagePanel"></div></div>
+
+<div id="onlineUI">
+ <div id="onlinePanel">
+  <h2>NEON CITY · ONLINE</h2>
+  <p>Створи приватну кімнату або введи код друга. Для роботи потрібні URL проєкту Supabase та публічний ключ anon/publishable.</p>
+  <label for="sbUrl">Supabase Project URL</label>
+  <input id="sbUrl" type="url" placeholder="https://xxxx.supabase.co" autocomplete="url">
+  <label for="sbKey">Supabase anon / publishable key</label>
+  <input id="sbKey" type="text" placeholder="eyJhbGciOi..." autocomplete="off">
+  <button id="sbSave">ЗБЕРЕГТИ НАЛАШТУВАННЯ</button>
+  <button id="onlineCreate">СТВОРИТИ СВІТ І КОД</button>
+  <label for="onlineRoomCode">Код кімнати друга</label>
+  <input id="onlineRoomCode" type="text" maxlength="6" placeholder="ABC123" autocomplete="off">
+  <button id="onlineJoin">ПРИЄДНАТИСЯ ЗА КОДОМ</button>
+  <div id="onlineStatus">Не підключено. Спочатку введи дані Supabase.</div>
+  <button id="onlineLeave" class="secondary">ВИЙТИ З ОНЛАЙН-КІМНАТИ</button>
+  <button id="onlineClose" class="secondary">ЗАКРИТИ</button>
+ </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const T=THREE,N=14,P=70,H=N*P/2,S=H-210,X2=H+300,L=N*P+24,W=X2+260,PI=Math.PI,$=i=>document.getElementById(i);
+const R=(a,b)=>a+Math.random()*(b-a),cl=(v,a,b)=>Math.max(a,Math.min(b,v)),wr=a=>Math.atan2(Math.sin(a),Math.cos(a));
+const G={},M={},HG={},CG={};
+const geo=(w,h,d)=>G[[w,h,d]]||(G[[w,h,d]]=new T.BoxGeometry(w,h,d));
+const mat=c=>M[c]||(M[c]=new T.MeshLambertMaterial({color:c}));
+const VM=new T.MeshLambertMaterial({vertexColors:true});
+const bx=(w,h,d,c,x,y,z)=>{const m=new T.Mesh(geo(w,h,d),mat(c));m.position.set(x,y,z);m.castShadow=m.receiveShadow=true;return m};
+function mrg(ps){const a=[],n=[],c=[];ps.forEach(([g,x,y,z,k])=>{const q=g.toNonIndexed().translate(x,y,z),o=new T.Color(k),p=q.attributes.position.array,nn=q.attributes.normal.array;
+ for(let i=0;i<p.length;i++){a.push(p[i]);n.push(nn[i])}for(let i=0;i<p.length/3;i++)c.push(o.r,o.g,o.b)});
+ const m=new T.BufferGeometry();m.setAttribute('position',new T.Float32BufferAttribute(a,3));m.setAttribute('normal',new T.Float32BufferAttribute(n,3));m.setAttribute('color',new T.Float32BufferAttribute(c,3));return m}
+
+/* ---------- звук ---------- */
+let ac,nb;
+const au=()=>{if(!ac){try{ac=new(window.AudioContext||window.webkitAudioContext)();nb=ac.createBuffer(1,ac.sampleRate,ac.sampleRate);const d=nb.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1}catch(e){}}
+ if(ac&&ac.state=='suspended')ac.resume();return ac};
+addEventListener('pointerdown',au);addEventListener('keydown',au);
+const nz=(d,f,v)=>{const a=au();if(!a)return;const s=a.createBufferSource(),fl=a.createBiquadFilter(),g=a.createGain();s.buffer=nb;fl.frequency.value=f;g.gain.setValueAtTime(v,a.currentTime);g.gain.exponentialRampToValueAtTime(.001,a.currentTime+d);s.connect(fl);fl.connect(g);g.connect(a.destination);s.start(0,0,d)};
+const tn=(f,d,v,t,f2)=>{const a=au();if(!a)return;const o=a.createOscillator(),g=a.createGain(),n=a.currentTime;o.type=t||'sine';o.frequency.setValueAtTime(f,n);if(f2)o.frequency.exponentialRampToValueAtTime(f2,n+d);g.gain.setValueAtTime(v,n);g.gain.exponentialRampToValueAtTime(.001,n+d);o.connect(g);g.connect(a.destination);o.start();o.stop(n+d)};
+const honk=()=>{tn(420,.35,.1,'square');tn(530,.35,.08,'square')};
+let eo,eg;
+function eng(){const a=au();if(!a||eo)return;eo=a.createOscillator();eg=a.createGain();eo.type='sawtooth';eg.gain.value=0;eo.connect(eg);eg.connect(a.destination);eo.start()}
+const NT=[0,3,7,10,12,10,7,3];let ri=0;
+setInterval(()=>{if(pl.car&&ac){const f=110*Math.pow(2,NT[ri%8]/12)*(ri%32<16?1:.89);if(ri%4==0)tn(90,.16,.12,'sine',40);ri++;tn(f,.22,.05,'sawtooth');if(ri%2)tn(f*2,.1,.025,'square')}},210);
+
+/* ---------- сцена ---------- */
+const rn=new T.WebGLRenderer({antialias:true});rn.setPixelRatio(Math.min(devicePixelRatio||1,1.75));rn.setSize(innerWidth,innerHeight);rn.domElement.id='gl';rn.shadowMap.enabled=true;document.body.prepend(rn.domElement);
+const sc=new T.Scene(),FOG=0xd7b49a;sc.fog=new T.Fog(FOG,90,340);
+const cam=new T.PerspectiveCamera(65,innerWidth/innerHeight,.3,500);
+sc.add(new T.HemisphereLight(0xfff0dc,0x4a5a78,1));
+const sun=new T.DirectionalLight(0xffd9a8,1.1);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);sun.shadow.bias=-.0007;
+Object.assign(sun.shadow.camera,{left:-60,right:60,top:60,bottom:-60,near:1,far:260});sun.shadow.camera.updateProjectionMatrix();sc.add(sun,sun.target);
+const sk=(()=>{const c=document.createElement('canvas');c.width=2;c.height=256;const g=c.getContext('2d'),gr=g.createLinearGradient(0,0,0,256);
+ gr.addColorStop(0,'#2f5fa8');gr.addColorStop(.28,'#6f9fd6');gr.addColorStop(.53,'#e9b38f');gr.addColorStop(.72,'#f6c58f');gr.addColorStop(1,'#ffe0b0');g.fillStyle=gr;g.fillRect(0,0,2,256);
+ const m=new T.Mesh(new T.SphereGeometry(420,16,12),new T.MeshBasicMaterial({map:new T.CanvasTexture(c),side:T.BackSide,fog:false,depthWrite:false}));m.renderOrder=-1;return m})();sc.add(sk);
+const fl=(s,c,y)=>{const m=new T.Mesh(new T.PlaneGeometry(s,s),mat(c));m.rotation.x=-PI/2;m.position.y=y;m.receiveShadow=true;sc.add(m)};
+fl(4000,0x27364a,-8);
+
+/* ---------- місто ---------- */
+const BX=[],rc=[],bc=[];
+for(let k=0;k<=N;k++)rc.push((k-N/2)*P);for(let i=0;i<N;i++)bc.push((i-(N-1)/2)*P);
+function tex(c){const mk=()=>{const k=document.createElement('canvas');k.width=k.height=128;return k},cv=mk(),ev=mk(),g=cv.getContext('2d'),e=ev.getContext('2d');
+ g.fillStyle=c;g.fillRect(0,0,128,128);e.fillStyle='#000';e.fillRect(0,0,128,128);
+ for(let y=0;y<4;y++)for(let x=0;x<4;x++){const X=x*32+5,Y=y*32+5,l=Math.random()<.3;
+  g.fillStyle='rgba(0,0,0,.4)';g.fillRect(X-2,Y-2,26,26);
+  const gr=g.createLinearGradient(X,Y,X,Y+22);gr.addColorStop(0,l?'#ffe3a3':'#86abd0');gr.addColorStop(1,l?'#ffb95e':'#1e2c44');g.fillStyle=gr;g.fillRect(X,Y,22,22);
+  g.fillStyle='rgba(255,255,255,.3)';g.fillRect(X,Y+10,22,1.5);g.fillRect(X+10,Y,1.5,22);
+  if(l){e.fillStyle='#7a5524';e.fillRect(X,Y,22,22)}}
+ const a=new T.CanvasTexture(cv),b=new T.CanvasTexture(ev);[a,b].forEach(q=>q.wrapS=q.wrapT=T.RepeatWrapping);return[a,b]}
+const BT=[[14,9,16,'#e8d6b8',1],[12,7,14,'#d9a88f',1],[16,10,12,'#c9c2b0',1],[18,14,18,'#b46b5a',0],[20,22,16,'#cfc8bd',0],[22,18,22,'#9fb4c4',0],[16,34,16,'#7fb3c9',2],[18,46,18,'#8c93a8',2],[20,58,20,'#6ea6b5',2],[16,26,22,'#c58a74',0],[24,12,16,'#e4dccb',0],[18,70,18,'#9db7d1',2]].map(([w,h,d,c,k])=>{const[a,b]=tex(c);a.repeat.set(w/14,h/14);b.repeat.set(w/14,h/14);
+ const sm=new T.MeshLambertMaterial({map:a,emissiveMap:b,emissive:0xffffff}),rf=mat(k==1?0x7a4a3a:0x555a66);return{w,h,d,k,g:geo(w,h,d),m:[sm,sm,rf,rf,sm,sm],dg:{}}});
+const NEON=[0xff4f9a,0x38e8ef,0xc18bff,0xffd166,0x79f2c0];
+const SHOPS=[],SHOP_TYPES=[{name:'Продукти',icon:'🛒',color:0x7dff6b},{name:'Зброя',icon:'🔫',color:0xff3d81},{name:'Одяг',icon:'👕',color:0x34e5ff},{name:'Аптека',icon:'💊',color:0xffd23d},{name:'Техніка',icon:'📱',color:0xb36bff},{name:'АЗС',icon:'⛽',color:0xff8c42}],sg=(txt,c)=>{const k=document.createElement('canvas');k.width=256;k.height=64;const g=k.getContext('2d');g.fillStyle='#14151c';g.fillRect(0,0,256,64);g.fillStyle=c;g.font='bold 38px sans-serif';g.textAlign='center';g.fillText(txt,128,46);return new T.MeshBasicMaterial({map:new T.CanvasTexture(k)})};
+function mkShop(px,pz,t){const dz=-1,s=16,st=SHOP_TYPES[t],nc=st.color,P_=[],wc=t?0xe6e0c8:0xcfd3dc,A=(w,h,d,x,y,z,c)=>P_.push([geo(w,h,d),x,y,z,c||wc]);
+ A(s,5.4,.5,0,2.7,-dz*7.75);A(.5,5.4,s,-7.75,2.7,0);A(.5,5.4,s,7.75,2.7,0);A(6,5.4,.5,-5,2.7,dz*7.75);A(6,5.4,.5,5,2.7,dz*7.75);A(4,1.5,.5,0,4.65,dz*7.75);
+ A(s-1,.03,s-1,0,.015,0,0x8a6b4a);A(8,1.1,1.3,0,.55,-dz*3,0x6b4a2f);A(8.4,.1,1.5,0,1.15,-dz*3,0xd8d8d8);A(.7,.4,.5,2.5,1.4,-dz*3,0x222222);A(7.4,2,.3,0,6.7,dz*8.1,nc);
+ for(let r=0;r<3;r++){A(12,.12,.7,0,.7+r*.7,-dz*7.2,0x4a3a2a);for(let i=0;i<10;i++)A(.55,.45,.45,-5+i*1.1,.98+r*.7,-dz*7.2,t?[0xe74c3c,0xf1c40f,0x3498db,0x2ecc71][(i+r)%4]:[0x222222,0x555555,0x8b0000][(i+r)%3])}
+ const m=new T.Mesh(mrg(P_),VM);m.position.set(px,.2,pz);m.castShadow=m.receiveShadow=true;sc.add(m);
+ const pm=new T.Mesh(new T.PlaneGeometry(7,1.7),sg(st.icon+' '+st.name.toUpperCase(),'#fff'));pm.position.set(px,6.9,pz+dz*8.28);pm.rotation.y=dz<0?PI:0;sc.add(pm);
+ const rf=bx(s+.8,.5,s+.8,0x555a66,px,5.85,pz);sc.add(rf);
+ const wb=(x0,x1,z0,z1,h)=>BX.push({x0:px+Math.min(x0,x1),x1:px+Math.max(x0,x1),z0:pz+Math.min(z0,z1),z1:pz+Math.max(z0,z1),h:h||5.6});
+ wb(-8,8,-dz*8,-dz*7.5);wb(-8,-7.5,-8,8);wb(7.5,8,-8,8);wb(-8,-2,dz*8,dz*7.5);wb(2,8,dz*8,dz*7.5);wb(-4,4,-dz*3-.65,-dz*3+.65,1.4);
+ SHOPS.push({x:px,z:pz,t,dz,rf,name:st.name,icon:st.icon})}
+const mx=new T.Matrix4(),CT=[],PL=[[4,5,6,7,8,11,9],[3,4,5,9,10,6,2],[0,1,2,0,1,10,3]];let PCt;
+const deco=(t,nc)=>{const{w,h,d,k}=t,p=[];
+ if(k==1)p.push([new T.BoxGeometry(w*.72,w*.72,d+1.2).rotateZ(PI/4).scale(1,.5,1),0,h,0,0x8a4b3a],[geo(1.6,2.4,.3),-w*.2,1.2,d/2+.1,0x4a2f20],[geo(1.4,1.6,1.4),w*.22,h+2.2,-d*.2,0x7a3f33],[geo(w+.4,.3,d+.4),0,.15,0,0xa59f94]);
+ else{p.push([geo(w+.2,3,d+.2),0,1.5,0,0x2a2d38],[geo(w+.3,.45,d+.3),0,3.3,0,nc],[geo(4,2,4),w*.25,h+1,-d*.2,0x6b7080]);
+  if(k==2){const sp=h>=58?12:4;p.push([geo(w*.7,h*.16,d*.7),0,h+h*.08,0,0x7c8aa0],[geo(.4,sp,.4),0,h+h*.16+sp/2,0,0xdddddd],[geo(.7,.7,.7),0,h+h*.16+sp,0,0xff3355])}}
+ return p};
+function makeCity(X0,n){
+ const b=[],r=[];for(let k=0;k<=n;k++)r.push((k-n/2)*P);for(let i=0;i<n;i++)b.push((i-(n-1)/2)*P);CT.push({cx:X0,n,bc:b,rc:r});
+ const cm=mat(0xd8d4cc),c1=new T.InstancedMesh(geo(.5,.34,54.8),cm,n*n*2),c2=new T.InstancedMesh(geo(54.8,.34,.5),cm,n*n*2),zb=new T.InstancedMesh(geo(3,.03,.9),mat(0xf2f2ee),(n+1)*(n+1)*32),dm=new T.InstancedMesh(geo(.35,.02,3.2),mat(0xe6c84a),(n+1)*2*(n*9+20));
+ const nI=n*n*4,lp=new T.InstancedMesh(geo(.2,6.4,.2),mat(0x33363f),nI),lh=new T.InstancedMesh(geo(1,.25,.6),new T.MeshBasicMaterial({color:0xfff1b0}),nI),tt=new T.InstancedMesh(geo(.5,2.6,.5),mat(0x5b3a22),nI),tc=new T.InstancedMesh(new T.IcosahedronGeometry(1.6,0),mat(0x3f7d3a),nI);
+ let a1=0,zi=0,di=0,ii=0;[c1,c2,zb,dm,lp,lh,tt,tc].forEach(o=>{o.frustumCulled=false;o.castShadow=o===tc});
+ b.forEach((x,i)=>b.forEach((z,j)=>{const X=X0+x;sc.add(bx(54,.3,54,0x9c9a94,X,.05,z));
+  mx.makeTranslation(X-27.1,.17,z);c1.setMatrixAt(a1,mx);mx.makeTranslation(X+27.1,.17,z);c1.setMatrixAt(a1+1,mx);mx.makeTranslation(X,.17,z-27.1);c2.setMatrixAt(a1,mx);mx.makeTranslation(X,.17,z+27.1);c2.setMatrixAt(a1+1,mx);a1+=2;
+  [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([sx,sz],q)=>{mx.makeTranslation(X+sx*26.6,3.2,z+sz*26.6);lp.setMatrixAt(ii,mx);mx.makeTranslation(X+sx*26.6,6.4,z+sz*26.6);lh.setMatrixAt(ii,mx);
+   const tx=q<2?X:X+sx*26.6,tz=q<2?z+sz*26.6:z;mx.makeTranslation(tx+(q<2?R(-6,6):0),1.5,tz+(q<2?0:R(-6,6)));tt.setMatrixAt(ii,mx);mx.elements[13]=4.2;tc.setMatrixAt(ii,mx);ii++});
+  const home=X0==0&&Math.abs(x+35)<1&&Math.abs(z-35)<1,dd=Math.hypot(x,z)/(n*P/2),pool=PL[dd<.35?0:dd<.7?1:2],shopQ=(i*3+j*2)%3!=0;if(home)return;
+  [[-13,-13],[13,-13],[-13,13],[13,13]].forEach(([ox,oz],q)=>{if(shopQ&&q==0){mkShop(X+ox*.92,z+oz*.92,(i*7+j*3+q*5)%SHOP_TYPES.length);return}
+   const px=X+ox,pz=z+oz;if(Math.random()<.07){sc.add(bx(24,.4,24,0x4f8a3d,px,.1,pz));for(let k=0;k<4;k++){const tx=px+R(-8,8),tz=pz+R(-8,8);sc.add(bx(.6,2.6,.6,0x5b3a22,tx,1.5,tz),bx(3.2,3,3.2,0x3f7d3a,tx,4,tz))}return}
+   const t=BT[pool[Math.random()*7|0]],nc=NEON[Math.random()*5|0],k=nc+'_'+(Math.random()*3|0);
+   const m=new T.Mesh(t.g,t.m);m.position.set(px,.2+t.h/2,pz);m.castShadow=m.receiveShadow=true;sc.add(m);BX.push({x0:px-t.w/2,x1:px+t.w/2,z0:pz-t.d/2,z1:pz+t.d/2,h:.2+t.h});
+   const d=new T.Mesh(t.dg[k]||(t.dg[k]=mrg(deco(t,nc))),VM);d.position.set(px,.2,pz);d.castShadow=true;sc.add(d)})}));
+ r.forEach(a=>{for(let s=-n*P/2+4;s<n*P/2;s+=8){if(r.some(q=>Math.abs(s-q)<10))continue;mx.makeRotationY(PI/2).setPosition(X0+s,.03,a);dm.setMatrixAt(di++,mx);mx.makeRotationY(0).setPosition(X0+a,.03,s);dm.setMatrixAt(di++,mx)}
+  r.forEach(c=>[[1,0],[-1,0],[0,1],[0,-1]].forEach(([ux,uz])=>{const ex=a+ux*P,ez=c+uz*P;if(ex<r[0]-1||ex>r[n]+1||ez<r[0]-1||ez>r[n]+1)return;
+   for(let k=0;k<8;k++){const o=(k-3.5)*1.7;if(ux)mx.makeRotationY(0).setPosition(X0+a+ux*10,.04,c+o);else mx.makeRotationY(PI/2).setPosition(X0+a+o,.04,c+uz*10);zb.setMatrixAt(zi++,mx)}}))});
+ c1.count=c2.count=a1;zb.count=zi;dm.count=di;sc.add(c1,c2,zb,dm,lp,lh,tt,tc)}
+makeCity(0,N);makeCity(X2,6);
+const blk=(x,z)=>CT.some(C=>{const i=Math.round((x-C.cx)/P+(C.n-1)/2),j=Math.round(z/P+(C.n-1)/2);return i>=0&&i<C.n&&j>=0&&j<C.n&&Math.abs(x-C.cx-C.bc[i])<27&&Math.abs(z-C.bc[j])<27});
+
+/* ---------- рельєф, річка, мости, гори ---------- */
+const sm_=(a,b,x)=>{const t=cl((x-a)/(b-a),0,1);return t*t*(3-2*t)},SPK=[-P,0,P];
+function hgt(x,z){const ax=Math.abs(x),az=Math.abs(z),r=Math.max(ax,az)-S,d2=Math.max(Math.abs(x-X2),az);if(r<=242)return 0;
+ const o=ax>az?z:x;let lat=1e9;for(const a of SPK)lat=Math.min(lat,Math.abs(o-a));
+ const n=Math.sin(x*.011)*Math.cos(z*.013)+.5*Math.sin(x*.027+z*.021)+.25*Math.sin(x*.06-z*.05);
+ const rv=r<250?-3*sm_(242,250,r):r<264?-3:-3*(1-sm_(264,272,r));
+ const h=Math.max(0,6*sm_(265,300,r)*(n*.5+.8)+80*sm_(320,470,r)*(.65+.35*n));
+ const terrain=rv+h*(1-(1-sm_(9,26,lat))*(1-sm_(400,440,r)))*sm_(232,330,d2);
+ // Рівний майданчик аеропорту та військової бази з плавним переходом до природного рельєфу
+ const outside=Math.max(-210-x,x-300,470-z,z-900,0);
+ const flatten=sm_(0,95,outside);
+ return terrain*flatten}
+const hy=(x,z)=>{const ax=Math.abs(x),az=Math.abs(z),r=Math.max(ax,az)-S;if(r>=240&&r<=274){const o=ax>az?z:x;if(SPK.some(a=>Math.abs(o-a)<8))return 0}return hgt(x,z)};
+const gy=(x,z)=>hy(x,z)+(blk(x,z)?.2:0);
+{const tg=new T.PlaneGeometry(2600,2600,320,320);tg.rotateX(-PI/2);const tp=tg.attributes.position,cs=[],cA=new T.Color(0x2a2a30),cB=new T.Color(0x8a7d5c),cG=new T.Color(0x4f7f3a),cR=new T.Color(0x7a746b),cS=new T.Color(0xf2f3f7),cc=new T.Color();
+ for(let i=0;i<tp.count;i++){const x=tp.getX(i),z=tp.getZ(i),h=hgt(x,z);tp.setY(i,h);
+  if(Math.max(Math.abs(x),Math.abs(z))-S<=244||Math.max(Math.abs(x-X2),Math.abs(z))<=236)cc.copy(cA);else{cc.copy(cB).lerp(cG,sm_(-.8,2.5,h)).lerp(cR,sm_(32,50,h)).lerp(cS,sm_(58,74,h));cc.multiplyScalar(.88+.14*Math.sin(x*.3)*Math.cos(z*.27))}
+  cs.push(cc.r,cc.g,cc.b)}
+ tg.setAttribute('color',new T.Float32BufferAttribute(cs,3));tg.computeVertexNormals();const tm=new T.Mesh(tg,VM);tm.receiveShadow=true;sc.add(tm)}
+const wt=new T.Mesh(new T.PlaneGeometry(2600,2600),new T.MeshLambertMaterial({color:0x25a9c2,transparent:true,opacity:.82}));wt.rotation.x=-PI/2;wt.position.y=-1.3;sc.add(wt);
+/* ---------- аеропорт SUNSET INTERNATIONAL ---------- */
+const airport=new T.Group();sc.add(airport);
+const runway=bx(48,.22,230,0x252b3b,0,.12,382),runEdge1=bx(1,.28,230,0xf5f1e7,-23.5,.24,382),runEdge2=bx(1,.28,230,0xf5f1e7,23.5,.24,382);airport.add(runway,runEdge1,runEdge2);
+for(let z=280;z<490;z+=18){airport.add(bx(1,.035,8,0xf7f4e9,0,.26,z));airport.add(bx(.5,.04,1.2,0xffd86b,-21,.28,z),bx(.5,.04,1.2,0xffd86b,21,.28,z))}
+const terminal=bx(30,7,13,0xe7a6a8,38,3.5,292),terminalRoof=bx(32,1,15,0x38cbd1,38,7.5,292),glass=bx(26,3.8,.25,0x263f66,38,3.9,285.35);airport.add(terminal,terminalRoof,glass);
+const hangar=bx(25,10,20,0xf0c1a0,-38,5,300),hangarRoof=bx(27,1,22,0x4b4d79,-38,10.4,300),hangarDoor=bx(15,7,.3,0x34445e,-38,3.7,289.8);airport.add(hangar,hangarRoof,hangarDoor);
+const airportSign=new T.Mesh(new T.PlaneGeometry(24,3),sg('SUNSET AIRPORT','#ffffff'));airportSign.position.set(38,9,284.8);airportSign.rotation.y=0;airport.add(airportSign);
+
+const BR=mrg([[geo(34,.5,16),0,-.19,0,0x6e6f78],[geo(34,1,.4),0,.7,7.8,0x9a9ca8],[geo(34,1,.4),0,.7,-7.8,0x9a9ca8],...[[-9,5],[-9,-5],[9,5],[9,-5]].map(([x,z])=>[geo(1.6,6,1.6),x,-3,z,0x5b5d66])]);
+SPK.forEach(a=>[[1,0],[-1,0],[0,1],[0,-1]].forEach(([sx,sz])=>{
+ sc.add(bx(sx?118:16,.06,sz?118:16,0x2a2a30,sx*(331+S)+(sx?0:a),.03,sz*(331+S)+(sz?0:a)));
+ const cx=sx*(257+S)+(sx?0:a),cz=sz*(257+S)+(sz?0:a),br=new T.Mesh(BR,VM);br.position.set(cx,0,cz);br.rotation.y=sz?PI/2:0;br.castShadow=true;sc.add(br);
+ [-7.8,7.8].forEach(o=>BX.push(sx?{x0:cx-17,x1:cx+17,z0:cz+o-.2,z1:cz+o+.2,h:1.2}:{x0:cx+o-.2,x1:cx+o+.2,z0:cz-17,z1:cz+17,h:1.2}))}));
+const pn=new T.InstancedMesh(new T.ConeGeometry(2.4,8,6),mat(0x2f5d34),900);pn.frustumCulled=false;let pi=0;
+for(let t=0;t<9000&&pi<900;t++){const x=R(-1100,1100),z=R(-1100,1100),r=Math.max(Math.abs(x),Math.abs(z))-S;if(r<278)continue;const h=hgt(x,z);if(h<1.2||h>62)continue;
+ const o=Math.abs(x)>Math.abs(z)?z:x;if(SPK.some(a=>Math.abs(o-a)<14))continue;const s=R(.8,1.5);mx.makeScale(s,s,s).setPosition(x,h+4*s,z);pn.setMatrixAt(pi++,mx)}
+pn.count=pi;sc.add(pn);
+
+/* ---------- узбережжя та набережна в стилі Vice City ---------- */
+const beach=new T.Group();sc.add(beach);beach.add(bx(470,.18,20,0xe9c39c,0,-1.02,251),bx(470,.3,3,0x9a6e77,0,-.78,240),bx(470,.16,2,0x3acbd0,0,-.65,238));for(let x=-220;x<=220;x+=28){const palm=bx(.5,5,.5,0x79513c,x,-.1,258);beach.add(palm);for(let a=0;a<5;a++){const leaf=bx(5,.14,.42,0x277d69,x+Math.cos(a*1.256)*2.1,2.1,258+Math.sin(a*1.256)*2.1);leaf.rotation.y=a*1.256;beach.add(leaf)}}
+setTimeout(()=>{beach.position.z=S;beach.scale.x=(H+32)/242;airport.position.z=S},0);
+/* ---------- математика ---------- */
+let A_,Z_;
+const sl=(o,d,l,h)=>{if(Math.abs(d)<1e-9)return o>=l&&o<=h;let a=(l-o)/d,c=(h-o)/d;if(a>c){const s=a;a=c;c=s}A_=Math.max(A_,a);Z_=Math.min(Z_,c);return A_<=Z_};
+const rb=(ox,oy,oz,dx,dy,dz,b)=>{A_=0;Z_=1e9;return sl(ox,dx,b.x0,b.x1)&&sl(oy,dy,0,b.h)&&sl(oz,dz,b.z0,b.z1)&&A_>0?A_:-1};
+const rs=(ox,oy,oz,dx,dy,dz,cx,cy,cz,r)=>{const ex=cx-ox,ey=cy-oy,ez=cz-oz,t=ex*dx+ey*dy+ez*dz;if(t<0)return -1;return ex*ex+ey*ey+ez*ez-t*t<r*r?t:-1};
+function col(o,rad){let hit=0;
+ for(const b of BX){if(o.x<b.x0-rad||o.x>b.x1+rad||o.z<b.z0-rad||o.z>b.z1+rad)continue;
+  const cx=cl(o.x,b.x0,b.x1),cz=cl(o.z,b.z0,b.z1),dx=o.x-cx,dz=o.z-cz,d=Math.hypot(dx,dz);
+  if(d<rad){if(d>1e-4){o.x=cx+dx/d*rad;o.z=cz+dz/d*rad}else{const l=o.x-b.x0,r=b.x1-o.x,u=o.z-b.z0,w=b.z1-o.z,m=Math.min(l,r,u,w);
+   if(m==l)o.x=b.x0-rad;else if(m==r)o.x=b.x1+rad;else if(m==u)o.z=b.z0-rad;else o.z=b.z1+rad}hit=1}}
+ o.x=cl(o.x,-W,W);o.z=cl(o.z,-W,W);return hit}
+
+/* ---------- машини ---------- */
+const WH=new T.CylinderGeometry(.4,.4,.34,14).rotateZ(PI/2),RM=new T.CylinderGeometry(.22,.22,.36,10).rotateZ(PI/2);
+function carGeo(c,t){const k=c+'_'+t;if(CG[k])return CG[k];
+ const[Ln,ch,cl,cz]=[[4.6,.62,2.1,-.3],[4.7,.85,2.8,-.5],[4.3,.48,1.7,-.2]][t],gl=0x16222f,y0=.95,q=(w,h,d,x,y,z,o,rx)=>{const g=new T.BoxGeometry(w,h,d);if(rx)g.rotateX(rx);return[g,x,y,z,o]},
+ p=[q(1.9,.2,Ln-.3,0,.32,0,0x101010),q(2,.52,Ln,0,.66,0,c),q(1.96,.1,Ln*.3,0,.95,Ln*.34,c),q(1.96,.12,Ln*.2,0,.96,-Ln*.4,c),
+  q(1.8,ch,cl,0,y0+ch/2,cz,gl),q(1.78,.09,cl*.7,0,y0+ch+.04,cz-.05,c),q(1.78,ch*1.25,.07,0,y0+ch*.5,cz+cl*.5+.12,gl,-.62),q(1.78,ch*1.2,.07,0,y0+ch*.5,cz-cl*.5-.1,gl,.7),
+  q(2.04,.3,.2,0,.55,Ln/2,0x222222),q(2.04,.3,.2,0,.55,-Ln/2,0x222222),q(1,.2,.05,0,.72,Ln/2+.1,0x0a0a0a),
+  q(.5,.14,.1,-.7,.85,Ln/2,0xfff3b0),q(.5,.14,.1,.7,.85,Ln/2,0xfff3b0),q(.5,.14,.1,-.7,.9,-Ln/2,0xff2a2a),q(.5,.14,.1,.7,.9,-Ln/2,0xff2a2a),q(.1,.12,.35,-1.03,1,.9,c),q(.1,.12,.35,1.03,1,.9,c)];
+ [[-.93,Ln*.3],[.93,Ln*.3],[-.93,-Ln*.3],[.93,-Ln*.3]].forEach(([x,z])=>p.push([WH,x,.4,z,0x141414],[RM,x*1.03,.4,z,0xc3c7d0]));
+ if(t==1)p.push(q(1.7,.08,cl,0,y0+ch+.14,cz,0x222222));if(t==2)p.push(q(1.8,.07,.5,0,1.2,-Ln/2+.1,0x111111),q(.1,.25,.1,-.7,1.07,-Ln/2+.1,0x111111),q(.1,.25,.1,.7,1.07,-Ln/2+.1,0x111111));
+ return CG[k]=mrg(p)}
+const CC=[0xd7263d,0x1b98e0,0xf4d35e,0xeeeeee,0x2a2a2e,0x3bb273,0xff8c42,0x9b5de5],cars=[];
+function addCar(x,z,r,ln,s){const m=new T.Mesh(carGeo(CC[Math.random()*8|0],Math.random()*3|0),VM);m.castShadow=true;m.rotation.order='YXZ';sc.add(m);
+ const c={m,x,z,r,sp:ln?ln.v:0,ln,s,drv:ln?1:0,sn:0,ram:0,vx:0,vz:0,av:0,dm:0,pt:0,y:0,home:null,sd:Math.random()<.5?1:-1};cars.push(c);return c}
+function makePlaneModel(){const g=new T.Group(),add=(w,h,d,c,x,y,z)=>{const m=bx(w,h,d,c,x,y,z);g.add(m);return m};add(1.65,.85,12,0x263b25,0,.05,0);add(15,.22,2.5,0x344b2b,0,0,0);add(4,.18,2,0x344b2b,0,.45,-4.7);add(.28,1.5,2,0x263b25,0,1.1,-5.1);add(3.8,.18,1.4,0x172617,0,.1,-5.2);add(1.2,.25,.8,0x172617,0,.62,3.1);const prop=new T.Group();prop.position.set(0,.05,6.05);const blade1=bx(.18,.18,4,0x172317,0,0,0),blade2=bx(4,.18,.18,0x172317,0,0,0);prop.add(blade1,blade2);g.add(prop);g.userData.prop=prop;return g}
+function makeHoverTesla(){
+ const g=new T.Group(),q=(w,h,d,c,x,y,z,rx)=>{const m=bx(w,h,d,c,x,y,z);if(rx)m.rotation.x=rx;g.add(m);return m},red=0xc8102e,dark=0x14181e,glass=0x101c28;
+ q(1.9,.2,4.2,dark,0,.34,0);q(1.96,.38,4.3,red,0,.6,0);q(1.9,.14,1.3,red,0,.82,1.45);q(1.9,.16,1.1,red,0,.84,-1.6);
+ q(1.7,.1,1.5,glass,0,.98,.55,-.5);q(1.6,.1,.9,glass,0,1,-.55,.5);q(1.6,.1,1,dark,0,1.12,-.02);
+ q(.5,.12,.1,0xe9f4f5,-.7,.7,2.16);q(.5,.12,.1,0xe9f4f5,.7,.7,2.16);q(1.9,.1,.1,0xff334f,0,.72,-2.16);q(2,.18,.3,dark,0,.45,2.18);q(2,.18,.3,dark,0,.45,-2.18);q(1.3,.06,.35,dark,0,1,-2);
+ for(const x of[-1,1])for(const z of[-1.4,1.4]){const tr=new T.Mesh(WH,mat(0x101317));tr.position.set(x*1.02,.4,z);g.add(tr);const hb=new T.Mesh(RM,mat(0xc3c7d0));hb.position.set(x*1.05,.4,z);g.add(hb)}
+ for(const x of[-.5,.5]){q(.3,.3,.4,0x333b44,x,.6,-2.3);const f=new T.Mesh(geo(.22,.22,.1),new T.MeshBasicMaterial({color:0xff7a30}));f.position.set(x,.6,-2.52);g.add(f)}
+ for(const x of[-1,1])for(const z of[-1.72,1.72]){const pod=new T.Group();pod.position.set(x*1.1,.18,z);pod.add(bx(.48,.2,.58,0x202a35,0,0,0),bx(.3,.08,.3,0x27e8f4,0,.14,0));const fan=new T.Mesh(new T.TorusGeometry(.19,.035,6,16),new T.MeshBasicMaterial({color:0x43efff}));fan.rotation.x=Math.PI/2;fan.position.y=.2;pod.add(fan);g.add(pod);g.userData.fans=(g.userData.fans||[]).concat(pod)}
+ return g
+}
+function makeHeliModel(){const g=new T.Group(),add=(w,h,d,c,x,y,z)=>{const m=bx(w,h,d,c,x,y,z);g.add(m);return m};add(2.1,1.15,3.1,0x34495e,0,.15,0);add(1.8,1.05,1.25,0x46b9c9,0,.42,.82);add(1.7,.7,.12,0x182d43,0,.55,1.48);add(.38,.38,5.4,0x64748b,0,.35,-3.45);add(1.1,.16,1.3,0x34495e,0,0,-6.1);const rotor=new T.Group();rotor.position.set(0,1.05,0);rotor.add(bx(.18,.12,8,0x202a35,0,0,0),bx(8,.12,.18,0x202a35,0,0,0));g.add(rotor);g.userData.rotor=rotor;const tail=new T.Group();tail.position.set(0,.4,-6.1);tail.rotation.z=Math.PI/2;tail.add(bx(.12,.12,2.1,0x202a35,0,0,0),bx(2.1,.12,.12,0x202a35,0,0,0));g.add(tail);g.userData.tailRotor=tail;return g}
+function addAircraft(type,x,z){const c=addCar(x,z,0,null,0);sc.remove(c.m);c.airType=type;c.y=0;c.vy=0;c.throttle=false;c.m=type==='plane'?makePlaneModel():type==='heli'?makeHeliModel():makeHoverTesla();c.m.rotation.order='YXZ';c.m.position.set(x,hy(x,z)+.3,z);sc.add(c.m);c.m.scale.setScalar(type==='plane'?1.15:type==='heli'?1:1);return c}
+
+const LO=((X2+210)-(H+120))/2,LHm=(X2+210)+(H+120);
+const mkLanes=(rr,cx)=>rr.forEach(a=>{const mid=Math.abs(a)<=P;[[1,1,a+4],[1,-1,a-4],[0,1,cx+a-4],[0,-1,cx+a+4]].forEach(([h,d,c])=>{if(h&&cx&&mid)return;const LL=cx?444:(mid?(h?LHm:2*(H+170)):L),l={h,d,c,v:R(9,15),L:LL,o:h?(!cx&&mid?LO:cx):0},s=R(0,LL);addCar(0,0,0,l,s);if(Math.random()<.6)addCar(0,0,0,l,(s+LL/2)%LL)})});
+mkLanes(CT[0].rc,0);mkLanes(CT[1].rc,X2);
+addCar(-3,10,.4,null,0);
+const roadster=addAircraft('tesla',-12,3);
+const airportPlane=addAircraft('plane',0,315+S);airportPlane.r=0;airportPlane.m.rotation.y=0;airportPlane.airportHome=1;
+function mv(c,dt){c.x+=(Math.sin(c.r)*c.sp+c.vx)*dt;c.z+=(Math.cos(c.r)*c.sp+c.vz)*dt;c.r+=c.av*dt;const k=Math.min(1,dt*3);c.vx-=c.vx*k;c.vz-=c.vz*k;c.av-=c.av*Math.min(1,dt*2.5);if(col(c,2.1))c.sp*=.8}
+function imp(c,Ix,Iz,rx,rz){const fx=Math.sin(c.r),fz=Math.cos(c.r),f=Ix*fx+Iz*fz;c.sp+=f;c.vx+=Ix-f*fx;c.vz+=Iz-f*fz;c.av+=(rz*Ix-rx*Iz)*.25}
+function hitCar(a,b){if((a.x-b.x)**2+(a.z-b.z)**2>36)return;
+ for(const ka of[1.2,-1.2])for(const kb of[1.2,-1.2]){const ax=a.x+Math.sin(a.r)*ka,az=a.z+Math.cos(a.r)*ka,qx=b.x+Math.sin(b.r)*kb,qz=b.z+Math.cos(b.r)*kb,dx=ax-qx,dz=az-qz,d=Math.hypot(dx,dz);if(d>=2.3||d<.01)continue;
+  const nx=dx/d,nzz=dz/d,pd=2.3-d;a.x+=nx*pd*.6;a.z+=nzz*pd*.6;b.x-=nx*pd*.4;b.z-=nzz*pd*.4;
+  const rel=((Math.sin(a.r)*a.sp+a.vx)-(Math.sin(b.r)*b.sp+b.vx))*nx+((Math.cos(a.r)*a.sp+a.vz)-(Math.cos(b.r)*b.sp+b.vz))*nzz;
+  if(rel<0){const j=-rel*.7;imp(a,nx*j,nzz*j,ax-a.x,az-a.z);imp(b,-nx*j,-nzz*j,qx-b.x,qz-b.z);const m=-rel;a.dm=Math.min(1,a.dm+m*.03);b.dm=Math.min(1,b.dm+m*.03);
+   if(b.ln){b.home=b.ln;b.ln=null}if(m>3)nz(.25,500,.5);if(m>10&&a===pl.car)hurt(m*.3)}}}
+
+/* ---------- люди ---------- */
+const SK=[0xf1c8a0,0xc68e64,0x8d5a3b],HR=[0x2a1d14,0x5a3a1e,0xd8b45a,0x111111],PN=[0x2b3042,0x4a4036,0x1f3a5f,0x333333];
+function mkH(shirt,gun){const sk=SK[Math.random()*3|0],hr=HR[Math.random()*4|0],pn=PN[Math.random()*4|0],g=new T.Group();
+ const kb=shirt+'b'+sk+hr,ka=shirt+'a'+sk,kl='l'+pn,
+ body=HG[kb]||(HG[kb]=mrg([[geo(.64,.72,.36),0,1.22,0,shirt],[geo(.3,.3,.3),0,1.78,0,sk],[geo(.33,.12,.33),0,1.98,0,hr],[geo(.33,.3,.06),0,1.8,-.14,hr],[geo(.06,.06,.02),-.08,1.8,.16,0x111111],[geo(.06,.06,.02),.08,1.8,.16,0x111111]])),
+ arm=HG[ka]||(HG[ka]=mrg([[geo(.2,.46,.2),0,-.23,0,shirt],[geo(.16,.16,.16),0,-.54,0,sk]])),
+ leg=HG[kl]||(HG[kl]=mrg([[geo(.3,.76,.3),0,-.38,0,pn],[geo(.32,.12,.42),0,-.82,.05,0x1a1a1a]]));
+ const pv=(ge,x,y)=>{const p=new T.Group(),m=new T.Mesh(ge,VM);m.castShadow=true;p.add(m);p.position.set(x,y,0);g.add(p);return p};
+ const bm=new T.Mesh(body,VM);bm.castShadow=true;g.add(bm);
+ g.userData.l=[pv(leg,-.17,.88),pv(leg,.17,.88)];g.userData.a=[pv(arm,-.43,1.52),pv(arm,.43,1.52)];
+ if(gun)g.userData.a[0].add(bx(.09,.34,.13,0x111111,0,-.55,.02));
+ sc.add(g);return g}
+function pose(m,md,sw){const l=m.userData.l,a=m.userData.a;l[0].rotation.x=sw;l[1].rotation.x=-sw;a[0].rotation.z=a[1].rotation.z=0;
+ if(md==1){a[0].rotation.x=a[1].rotation.x=-2.9;a[0].rotation.z=-.3;a[1].rotation.z=.3}
+ else if(md==2){a[0].rotation.x=-1.5;a[1].rotation.x=-1.25}
+ else{a[0].rotation.x=-sw*.8-.1;a[1].rotation.x=sw*.8}}
+const SH=[0xe07a5f,0x81b29a,0xf2cc8f,0x3d5a80,0xb5838d,0xdddddd,0x6d597a],peds=[];let kills=0,money=0;
+function newPed(i){const arm=Math.random()<.25;if(peds[i])sc.remove(peds[i].m);
+ peds[i]={m:mkH(arm?0x8f1d2c:SH[Math.random()*7|0],arm),kx:(PCt=CT[Math.random()<.22?1:0]).cx+PCt.bc[Math.random()*PCt.n|0],kz:PCt.bc[Math.random()*PCt.n|0],u:R(0,4),dir:Math.random()<.5?1:-1,off:R(-1.2,1.2),v:R(1.5,2.4),arm,hp:arm?90:45,dead:0,dt:0,pan:0,hos:0,cd:1,x:0,z:0,ph:R(0,6),aim:0,seen:0,free:0,mode:0,stun:0,t:0}}
+for(let i=0;i<130;i++)newPed(i);
+function newSeller(i,s){if(peds[i])sc.remove(peds[i].m);const arm=s.t==1;
+ const p=peds[i]={m:mkH(arm?0x2a2a2a:0xd9a441,arm),sh:s,x:s.x,z:s.z-s.dz*5.2,hp:arm?100:60,arm,dead:0,dt:0,pan:0,hos:0,cd:1,ph:0,aim:0,seen:0,free:0,mode:0,stun:0,t:0,rob:0,u:0,dir:1,off:0,v:0,kx:0,kz:0};
+ p.m.position.set(p.x,.2,p.z);p.m.rotation.y=s.dz>0?0:PI}
+SHOPS.forEach(s=>newSeller(peds.length,s));
+
+/* ---------- гравець ---------- */
+const PLAYER_MAX=9999999;let devGodMode=false;
+const pl={x:5,z:5,y:0,r:0,hp:100,ar:0,car:null,dead:0,m:mkH(0x2d6cdf,true),ph:0,hurtT:9,cdh:0};
+let jx=0,jy=0,fh=0,wi=0,wo=0,cd=0,yaw=0,pit=.4,lastDrag=0,hurtA=0,ul='',uf='',flightThrottle=false,tfx=0,tfy=0,tjoyId=null,mouseAim=false,mouseFire=false,shiftLock=false;
+const K={},ak={l:0,r:0,u:0,d:0},cxh=$('cx');
+function requestShiftLockPointer(){
+ if(!shiftLock||document.pointerLockElement===cv)return;
+ const uiOpen=$('extras').classList.contains('open')||$('phoneUI').classList.contains('open')||$('devUI').classList.contains('open')||$('mapFull').classList.contains('open')||$('garageUI').style.display==='flex'||$('shopui').style.display==='flex';
+ if(uiOpen)return;
+ try{const result=cv.requestPointerLock?.();if(result&&typeof result.catch==='function')result.catch(()=>{});}catch(err){}
+}
+function setShiftLock(on,notify=true){
+ if(on&&(pl.car||pl.dead>0)){if(notify)toast('Shift Lock доступний, коли ти пішки');return}
+ shiftLock=!!on;document.body.classList.toggle('shift-lock',shiftLock);
+ if(shiftLock)requestShiftLockPointer();else if(document.pointerLockElement===cv)document.exitPointerLock();
+ if(notify)toast(shiftLock?'SHIFT LOCK УВІМКНЕНО':'SHIFT LOCK ВИМКНЕНО');
+}
+function toggleExtrasMenu(){
+ const ex=$('extras'),open=!ex.classList.contains('open');ex.classList.toggle('open',open);
+ if(open&&document.pointerLockElement===cv)document.exitPointerLock();
+ else if(!open&&shiftLock)requestShiftLockPointer();
+}
+const WP=[{n:'Пістолет',i:'🔫',dmg:40,rate:.3,pel:1,sp:.004,rng:150,sd:.1,sf:2500},{n:'Автомат',i:'⚡',dmg:18,rate:.085,pel:1,sp:.022,rng:140,sd:.07,sf:3000},{n:'Дробовик',i:'💥',dmg:17,rate:.75,pel:7,sp:.08,rng:50,sd:.3,sf:1500},{n:'Штурмова',i:'🔹',dmg:30,rate:.13,pel:1,sp:.012,rng:200,sd:.09,sf:2200},{n:'Снайпер',i:'🎯',dmg:200,rate:1,pel:1,sp:0,rng:320,sd:.5,sf:900},{n:'Міні-ган',i:'🌀',dmg:12,rate:.04,pel:1,sp:.04,rng:120,sd:.05,sf:3500}];
+WP.forEach((w,i)=>w.pr=[0,200,300,600,900,1500][i]);const own=[1,0,0,0,0,0],wh=$('wheel');
+function sel(i){wi=i;[...wh.children].forEach((d,j)=>d.classList.toggle('on',j==i));$('wbtn').textContent=WP[i].i+' '+WP[i].n}
+const openW=()=>{if(pl.car||pl.dead>0)return;wo=1;wh.style.display='block'},closeW=()=>{wo=0;wh.style.display='none'};
+WP.forEach((w,i)=>{const d=document.createElement('div'),a=-PI/2+i*PI/3;d.className='ws';d.style.left=`calc(50% + ${Math.cos(a)*118}px)`;d.style.top=`calc(50% + ${Math.sin(a)*118}px)`;
+ d.innerHTML=w.i+'<small>'+w.n+'</small>';d.onpointerdown=e=>{e.stopPropagation();if(!own[i])return toast('Купи у магазині зброї');sel(i);closeW()};wh.append(d)});
+const refreshW=()=>[...wh.children].forEach((d,i)=>{d.querySelector('small').textContent=own[i]?WP[i].n:'🔒$'+WP[i].pr;d.style.opacity=own[i]?1:.55});refreshW();sel(0);$('wbtn').onpointerdown=openW;wh.onpointerdown=e=>{if(e.target===wh)closeW()};
+const hurt=d=>{if(devGodMode){pl.hp=PLAYER_MAX;pl.ar=PLAYER_MAX;return}const a=Math.min(pl.ar,d*.6);pl.ar-=a;pl.hp-=d-a;hurtA=1;pl.hurtT=0};
+const hud=()=>$('ks').textContent='Вбито: '+kills+'  💰 $'+money+'  📦 '+pkGot.size+'/25';
+
+/* ---------- керування: телефон + ПК ---------- */
+addEventListener('keydown',e=>{
+ if(['KeyW','KeyA','KeyS','KeyD','Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();
+ K[e.code]=1;if(e.code==='KeyG'&&!e.repeat)throwG();
+ const aircraft=!!(pl.car&&pl.car.airType&& (pl.car.airType!=='tesla'||pl.car.flightMode));
+ if(e.code==='KeyE'){if(aircraft)ak.u=1;else toggleCar()}
+ if(e.code==='KeyQ'&&aircraft)ak.d=1;
+ if(e.code==='KeyR'){if(wo)closeW();else openW()}
+ if(e.code==='KeyT'&&!e.repeat&&!phoneOpen&&!devOpen){e.preventDefault();toggleExtrasMenu()}
+ if((e.code==='ShiftLeft'||e.code==='ShiftRight')&&!e.repeat){e.preventDefault();setShiftLock(!shiftLock)}
+ if(e.code==='KeyF'&&!aircraft)toggleCar();
+ if(/^Digit[1-6]$/.test(e.code)&&own[+e.code[5]-1])sel(+e.code[5]-1)
+});
+addEventListener('keyup',e=>{K[e.code]=0;if(e.code==='KeyE')ak.u=0;if(e.code==='KeyQ')ak.d=0});
+['gesturestart','contextmenu'].forEach(n=>document.addEventListener(n,e=>e.preventDefault()));
+addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'&&e.button===0&&!e.target.closest('button,.b,#shopui,#wheel,#extras,#phoneUI,#devUI,#garageUI,#mapFull')){mouseFire=true;fh=1}});
+addEventListener('pointerup',e=>{if(e.pointerType==='mouse'&&e.button===0){mouseFire=false;fh=0}if(e.pointerType==='mouse'&&e.button===2)mouseAim=false});
+addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'&&e.button===2){mouseAim=true;e.preventDefault()}});
+addEventListener('wheel',e=>{if(wo){const dir=Math.sign(e.deltaY);let i=wi;for(let n=0;n<6;n++){i=(i+(dir>0?1:5))%6;if(own[i]){sel(i);break}}}else if(!mouseAim){const dir=Math.sign(e.deltaY);if(dir){let i=wi;for(let n=0;n<6;n++){i=(i+(dir>0?1:5))%6;if(own[i]){sel(i);break}}}}},{passive:true});
+const joy=$('joy'),kn=$('kn');let jid=null;
+function jm(e){const r=joy.getBoundingClientRect();let dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2);const m=Math.hypot(dx,dy),RR=48;if(m>RR){dx*=RR/m;dy*=RR/m}kn.style.transform=`translate(${dx}px,${dy}px)`;jx=dx/RR;jy=-dy/RR}
+joy.onpointerdown=e=>{jid=e.pointerId;joy.setPointerCapture(jid);jm(e)};
+joy.onpointermove=e=>{if(e.pointerId===jid)jm(e)};
+joy.onpointerup=joy.onpointercancel=e=>{if(e.pointerId===jid){jid=null;jx=jy=0;kn.style.transform='translate(0,0)'}};
+const fb=$('fire');let fid=null;
+fb.onpointerdown=e=>{fid=e.pointerId;fb.setPointerCapture(fid);fh=1};
+fb.onpointerup=fb.onpointercancel=e=>{if(e.pointerId===fid){fh=0;fid=null}};
+document.querySelectorAll('.ab').forEach(el=>{const k=el.dataset.k;el.onpointerdown=e=>{el.setPointerCapture(e.pointerId);ak[k]=1};el.onpointerup=el.onpointercancel=()=>ak[k]=0});
+$('car').onpointerdown=()=>toggleCar();
+$('flightThrottle').onpointerdown=e=>{e.preventDefault();if(!pl.car||!pl.car.airType)return;flightThrottle=!flightThrottle;pl.car.throttle=flightThrottle;$('flightThrottle').textContent=flightThrottle?'ТЯГА: УВІМК':'ТЯГА: ВИМК';toast(flightThrottle?'Двигун увімкнено':'Двигун вимкнено')};
+const tj=$('teslaJoy'),tk=$('teslaKnob');
+function teslaJoyMove(e){const r=tj.getBoundingClientRect();let x=e.clientX-(r.left+r.width/2),y=e.clientY-(r.top+r.height/2),m=Math.hypot(x,y),lim=r.width*.36;if(m>lim){x*=lim/m;y*=lim/m}tfx=x/lim;tfy=-y/lim;tk.style.transform=`translate(${x}px,${y}px)`}
+tj.onpointerdown=e=>{e.preventDefault();tjoyId=e.pointerId;tj.setPointerCapture(tjoyId);teslaJoyMove(e)};tj.onpointermove=e=>{if(e.pointerId===tjoyId)teslaJoyMove(e)};tj.onpointerup=tj.onpointercancel=e=>{if(e.pointerId===tjoyId){tjoyId=null;tfx=tfy=0;tk.style.transform='translate(0,0)'}};
+document.querySelectorAll('[data-tmove]').forEach(b=>{const k=b.dataset.tmove;b.onpointerdown=e=>{e.preventDefault();b.setPointerCapture(e.pointerId);ak[k==='up'?'u':'d']=1};b.onpointerup=b.onpointercancel=()=>ak[k==='up'?'u':'d']=0});
+function findTeslaWall(c){let best=null,bd=6.5;for(const b of BX){if(b.h<7)continue;const zIn=c.z>=b.z0-1&&c.z<=b.z1+1,xIn=c.x>=b.x0-1&&c.x<=b.x1+1;
+  if(zIn){for(const [axis,val,side,dist] of [['x',b.x0,-1,Math.abs(c.x-b.x0)],['x',b.x1,1,Math.abs(c.x-b.x1)]])if(dist<bd){bd=dist;best={box:b,axis,val,side}}}
+  if(xIn){for(const [axis,val,side,dist] of [['z',b.z0,-1,Math.abs(c.z-b.z0)],['z',b.z1,1,Math.abs(c.z-b.z1)]])if(dist<bd){bd=dist;best={box:b,axis,val,side}}}
+ }return best}
+function toggleTeslaFlight(){
+ const c=pl.car;if(!c||c.airType!=='tesla')return;
+ c.flightMode=!c.flightMode;c.wallRide=false;c.wallFace=null;c.vy=0;
+ c.y=c.flightMode?Math.max(.8,c.y||.8):0;c.sp=0;
+ tfx=tfy=0;tjoyId=null;tk.style.transform='translate(0,0)';
+ ak.u=0;ak.d=0;
+ document.body.classList.toggle('teslaFlight',!!c.flightMode);
+ // Keep the flight controls governed by the CSS state, never by stale inline display styles.
+ $('teslaFlightUI').style.display='';
+ $('teslaFlightBtn').textContent=c.flightMode?'ЇХАТИ':'ПОЛІТ';
+ $('teslaWallBtn').textContent='СТІНИ: ВИМК';
+ if(!c.flightMode){c.m.rotation.set(0,c.r,0);c.m.position.set(c.x,hy(c.x,c.z)+.3,c.z)}
+ toast(c.flightMode?'Режим польоту увімкнено':'Звичайне керування')
+}
+$('teslaFlightBtn').onpointerdown=e=>{e.preventDefault();toggleTeslaFlight()};
+$('teslaWallBtn').onpointerdown=e=>{e.preventDefault();const c=pl.car;if(!c||c.airType!=='tesla'||!c.flightMode)return;if(c.wallRide){c.wallRide=false;c.wallFace=null;c.m.rotation.set(0,c.r,0);c.y=Math.max(1,c.wallY-hy(c.x,c.z));$('teslaWallBtn').textContent='СТІНИ: ВИМК';toast('Режим стін вимкнено');return}const f=findTeslaWall(c);if(!f){toast('Під’їдь ближче до високої будівлі');return}c.wallFace=f;c.wallRide=true;c.wallY=Math.max(2,hy(c.x,c.z)+2);if(f.axis==='x'){c.x=f.val+f.side*1.35;c.z=cl(c.z,f.box.z0+2.8,f.box.z1-2.8)}else{c.z=f.val+f.side*1.35;c.x=cl(c.x,f.box.x0+2.8,f.box.x1-2.8)}$('teslaWallBtn').textContent='СТІНИ: УВІМК';toast('Магнітне зчеплення зі стіною!')};
+
+const cv=rn.domElement;let cid=null,lx=0,ly=0;
+document.addEventListener('pointerlockchange',()=>document.body.classList.toggle('pointer-locked',document.pointerLockElement===cv));
+document.addEventListener('mousemove',e=>{if(!shiftLock||document.pointerLockElement!==cv)return;yaw-=e.movementX*.0026;pit=cl(pit+e.movementY*.0022,-.15,1.25);lastDrag=performance.now()});
+cv.onpointerdown=e=>{if(e.pointerType==='mouse'&&e.button===0){if(shiftLock&&document.pointerLockElement!==cv){requestShiftLockPointer();e.preventDefault();e.stopPropagation()}return}if(cid!==null)return;cid=e.pointerId;cv.setPointerCapture(cid);lx=e.clientX;ly=e.clientY};
+cv.onpointermove=e=>{if(e.pointerId!==cid)return;yaw-=(e.clientX-lx)*.006;pit=cl(pit+(e.clientY-ly)*.004,-.15,1.25);lx=e.clientX;ly=e.clientY;lastDrag=performance.now()};
+cv.onpointerup=cv.onpointercancel=e=>{if(e.pointerId===cid)cid=null};
+addEventListener('resize',()=>{rn.setSize(innerWidth,innerHeight);cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix()});
+setTimeout(()=>$('tip').style.opacity=0,11000);
+
+function toast(t){const m=$('msg');m.textContent=t;m.style.opacity=1;clearTimeout(toast.t);toast.t=setTimeout(()=>{if(pl.dead<=0)m.style.opacity=0},1800)}
+function shopNear(){if(pl.car||pl.dead>0)return null;for(const s of SHOPS){if(Math.abs(pl.x-s.x)>10||Math.abs(pl.z-s.z)>10)continue;const p=peds.find(q=>q&&q.sh===s);if(p&&!p.dead&&!(p.hos>0)&&(p.x-pl.x)**2+(p.z-pl.z)**2<42)return s}return null}
+function openShop(s){const el=$('shopui'),l=$('sl');el.style.display='flex';l.innerHTML='';
+ const hd=document.createElement('div');hd.style.textAlign='center';hd.textContent=s.icon+' '+s.name+' · $'+money;l.append(hd);
+ const catalog={
+  0:[{n:'🥖 Хліб (+10 HP)',pr:8,f:()=>{pl.hp=Math.min(PLAYER_MAX,pl.hp+10)}},{n:'🥤 Напій (+20 HP)',pr:15,f:()=>{pl.hp=Math.min(PLAYER_MAX,pl.hp+20)}},{n:'🍔 Бургер (+35 HP)',pr:28,f:()=>{pl.hp=Math.min(PLAYER_MAX,pl.hp+35)}},{n:'🍕 Піца (+50 HP)',pr:45,f:()=>{pl.hp=Math.min(PLAYER_MAX,pl.hp+50)}}],
+  1:[1,2,3,4,5].map(i=>({n:WP[i].i+' '+WP[i].n,pr:WP[i].pr,ok:()=>own[i],f:()=>{own[i]=1;refreshW();sel(i)}})),
+  2:[{n:'🧢 Кепка (стиль)',pr:35,f:()=>toast('Новий стиль придбано!')},{n:'🦺 Бронежилет',pr:180,f:()=>{pl.ar=devGodMode?PLAYER_MAX:100}}],
+  3:[{n:'💊 Аптечка (+60 HP)',pr:55,f:()=>{pl.hp=Math.min(PLAYER_MAX,pl.hp+60)}},{n:'🩹 Перша допомога (+25 HP)',pr:22,f:()=>{pl.hp=Math.min(PLAYER_MAX,pl.hp+25)}},{n:'🦺 Бронежилет',pr:200,f:()=>{pl.ar=devGodMode?PLAYER_MAX:100}}],
+  4:[{n:'🔋 Енергоблок (+броня)',pr:120,f:()=>{pl.ar=devGodMode?PLAYER_MAX:100}},{n:'📟 Гаджет (бонус)',pr:75,f:()=>toast('Гаджет придбано!')}],
+  5:[{n:'⛽ Заправка авто',pr:35,f:()=>{if(pl.car)pl.car.sp=Math.min(40,pl.car.sp+12);else toast('Спочатку сядь у машину')}},{n:'🛠 Ремонт авто',pr:60,f:()=>{if(pl.car)pl.car.dm=0;else toast('Потрібно бути в авто')}}]
+ };const it=catalog[s.t]||catalog[0];
+ it.forEach(o=>{const d=document.createElement('div'),a=document.createElement('span'),b=document.createElement('span');d.className='it';a.textContent=o.n;b.textContent=o.ok&&o.ok()?'✓':'$'+o.pr;d.append(a,b);
+  d.onpointerdown=e=>{e.stopPropagation();if(o.ok&&o.ok())return;if(money<o.pr)return toast('Не вистачає грошей');money-=o.pr;o.f();hud();tn(900,.15,.1,'square',1400);openShop(s)};l.append(d)});
+ const c=document.createElement('div');c.className='it';c.style.justifyContent='center';c.textContent='✕ Закрити';c.onpointerdown=()=>{el.style.display='none'};l.append(c)}
+$('shopui').onpointerdown=e=>{if(e.target.id=='shopui')e.target.style.display='none'};
+$('shop').onpointerdown=()=>{const s=shopNear();if(s)openShop(s)};
+function nearCar(){let b=null,bd=100;for(const c of cars){if(c.airportHome&&Math.hypot(c.x,c.z-315-S)>40)continue;const d=(c.x-pl.x)**2+(c.z-pl.z)**2;if(d<bd){bd=d;b=c}}return b}
+function eject(c){let bi=0,bd=-1;peds.forEach((p,i)=>{const d=(p.x-pl.x)**2+(p.z-pl.z)**2;if(!p.dead&&!p.sh&&d>bd){bd=d;bi=i}});
+ newPed(bi);const p=peds[bi];p.free=1;p.mode=Math.random()<.55?1:2;p.x=c.x+Math.cos(c.r)*2.6;p.z=c.z-Math.sin(c.r)*2.6;p.stun=1.1;p.m.position.set(p.x,0,p.z);p.m.rotation.y=c.r}
+function toggleCar(){if(pl.dead>0)return;closeW();if(!pl.car&&shiftLock)setShiftLock(false,false);
+ if(pl.car){const c=pl.car;pl.x=c.x+Math.cos(c.r)*3;pl.z=c.z-Math.sin(c.r)*3;pl.y=0;pl.car=null;pl.m.visible=true;flightThrottle=false;document.body.classList.remove('air','teslaCar','teslaFlight');$('teslaFlightUI').style.display='';$('flightThrottle').textContent='ТЯГА: ВИМК';col(pl,.6);nz(.12,700,.25)}
+ else{const c=nearCar();if(c){if(c.drv&&!c.airType){c.drv=0;eject(c);crime(1)}pl.car=c;c.ln=null;pl.m.visible=false;pl.y=c.y||0;flightThrottle=!!c.throttle;document.body.classList.toggle('air',!!c.airType&&c.airType!=='tesla');document.body.classList.toggle('teslaCar',c.airType==='tesla');document.body.classList.toggle('teslaFlight',!!(c.airType==='tesla'&&c.flightMode));$('teslaFlightUI').style.display='';$('teslaFlightBtn').textContent=c.flightMode?'ЇХАТИ':'ПОЛІТ';$('flightThrottle').textContent=flightThrottle?'ТЯГА: УВІМК':'ТЯГА: ВИМК';nz(.12,700,.25)}}}
+
+/* ---------- стрільба ---------- */
+const dv=new T.Vector3(),trs=[];
+function tracer(x,y,z,a,b,c){const g=new T.BufferGeometry().setFromPoints([new T.Vector3(x,y,z),new T.Vector3(a,b,c)]),l=new T.Line(g,new T.LineBasicMaterial({color:0xffe9a0}));sc.add(l);trs.push([l,.07])}
+function killP(p){if(p.dead)return;if(!p.arm&&!p.sh)crime(1);p.dead=1;p.dt=0;kills++;const g=p.sh?R(250,700)|0:R(20,160)|0;money+=g;hud();if(p.sh)toast('Продавця вбито! +$'+g);tn(700,.3,.1,'sawtooth',260)}
+function hurtP(p,d){p.hp-=d;if(p.hp<=0)killP(p);else{p.pan=6;p.aim=0;if(p.arm)p.hos=14}}
+function killOfficer(p){if(!p||p.dead)return;p.dead=true;sc.remove(p.m);const c=p.car;if(c){c.liveOfficers=Math.max(0,(c.liveOfficers||0)-1);if(c.liveOfficers===0&&!c.destroyTimer)c.destroyTimer=15}tn(700,.22,.1,'sawtooth',220)}
+function los(p){const dx=pl.x-p.x,dz=pl.z-p.z,d=Math.hypot(dx,dz)||1;for(const b of BX){const t=rb(p.x,1.6,p.z,dx/d,0,dz/d,b);if(t>0&&t<d)return 0}return 1}
+function aimPed(){cam.getWorldDirection(dv);const o=cam.position;let t=45,tp=null;
+ for(const b of BX){const s=rb(o.x,o.y,o.z,dv.x,dv.y,dv.z,b);if(s>0&&s<t)t=s}
+ for(const p of peds){if(p.dead||p.stun>0||p.hos>0)continue;const s=rs(o.x,o.y,o.z,dv.x,dv.y,dv.z,p.x,1.1,p.z,.7);if(s>0&&s<t){t=s;tp=p}}return tp}
+function shoot(){const w=WP[wi];cd=w.rate;crime(.18);cam.getWorldDirection(dv);const o=cam.position,ox=o.x,oy=o.y,oz=o.z;
+ const mxp=pl.x-.43*Math.cos(pl.r)+.7*Math.sin(pl.r),mzp=pl.z+.43*Math.sin(pl.r)+.7*Math.cos(pl.r);let hit=0;
+ nz(w.sd,w.sf,.35);tn(150,.1,.22,'triangle',40);
+ for(let k=0;k<w.pel;k++){
+  let dx=dv.x+R(-w.sp,w.sp),dy=dv.y+R(-w.sp,w.sp),dz=dv.z+R(-w.sp,w.sp);const l=Math.hypot(dx,dy,dz);dx/=l;dy/=l;dz/=l;
+  let t=w.rng,tp=null,hd=0;
+  for(const b of BX){const s=rb(ox,oy,oz,dx,dy,dz,b);if(s>0&&s<t)t=s}
+  if(dy<0){const g=-oy/dy;if(g<t)t=g}
+  for(const p of peds){if(p.dead)continue;let s=rs(ox,oy,oz,dx,dy,dz,p.x,1.8,p.z,.32),h=1;
+   if(s<0){s=rs(ox,oy,oz,dx,dy,dz,p.x,1.1,p.z,.6);h=0}
+   if(s>0&&s<t){t=s;tp=p;hd=h}}
+  let officerHit=null;for(const p of policeOfficers){if(p.dead||p.returning)continue;const s=rs(ox,oy,oz,dx,dy,dz,p.x,1.15,p.z,.42);if(s>0&&s<t){t=s;tp=null;officerHit=p}}
+  let guardHit=null;if(typeof tcc!=='undefined')for(const u of tcc.units){if(!u.alive)continue;const s=rs(ox,oy,oz,dx,dy,dz,u.x,1.55,u.z,.55);if(s>0&&s<t){t=s;tp=null;officerHit=null;guardHit=u}}if(typeof military!=='undefined')for(const g of military.guards){if(!g.alive)continue;const s=rs(ox,oy,oz,dx,dy,dz,g.x,1.55,g.z,.55);if(s>0&&s<t){t=s;tp=null;officerHit=null;guardHit=g}}
+  if(guardHit){guardHit.hp=(guardHit.hp??100)-w.dmg;if(guardHit.hp<=0){guardHit.alive=false;guardHit.m.visible=false;toast('Підрозділ нейтралізовано')}hit=1}else if(officerHit){officerHit.hp-=w.dmg;if(officerHit.hp<=0)killOfficer(officerHit);hit=1}else if(tp){hurtP(tp,w.dmg*(hd?3:1));hit=1}
+  tracer(mxp,pl.y+1.5,mzp,ox+dx*t,oy+dy*t,oz+dz*t)}
+ for(const p of peds)if(!p.dead){const d=Math.hypot(p.x-pl.x,p.z-pl.z);if(d<60){p.pan=6;if(p.arm&&d<70&&!p.hos){p.hos=14;p.aim=0}}}
+ if(hit){cxh.classList.add('h');setTimeout(()=>cxh.classList.remove('h'),120)}}
+
+/* ---------- оновлення ---------- */
+function walk(dt,ix,iy,fr){const m=Math.hypot(ix,iy),sy=Math.sin(yaw),cy=Math.cos(yaw),go=m>.08;let tr=pl.r;
+ if(go){const a=Math.min(1,m),nx=ix/m,ny=iy/m,dx=cy*nx-sy*ny,dz=-sy*nx-cy*ny;const v_=pl.y<-1.2?3:6.2;pl.x+=dx*v_*a*dt;pl.z+=dz*v_*a*dt;pl.ph+=dt*10*a;tr=Math.atan2(dx,dz)}
+ if(fr||shiftLock)tr=yaw+PI;
+ pl.r+=wr(tr-pl.r)*Math.min(1,dt*14);
+ for(const c of cars){if(c.airType)continue;const dx=pl.x-c.x,dz=pl.z-c.z,d=Math.hypot(dx,dz);if(d<2.2&&d>.01){pl.x=c.x+dx/d*2.2;pl.z=c.z+dz/d*2.2;
+  if(c.ln&&c.sp>3&&pl.cdh<=0){hurt(Math.min(60,c.sp*4));pl.cdh=1;nz(.25,400,.5)}}}
+ col(pl,.5);pl.y+=(gy(pl.x,pl.z)-pl.y)*Math.min(1,dt*20);
+ pose(pl.m,fr?2:0,go?Math.sin(pl.ph)*.7:0);if(!fr&&!go)pl.m.userData.a[0].rotation.x=-.6;
+ pl.m.position.set(pl.x,pl.y,pl.z);pl.m.rotation.y=pl.r}
+function drive(dt,ix,iy,hb){const c=pl.car;if(c.airType&& (c.airType!=='tesla'||c.flightMode)){flyDrive(dt,ix,iy);return}const s0=c.sp;
+ if(iy>.06)c.sp+=(c.sp<0?60:24)*iy*dt*(c.airType==='tesla'?(c.sp<25?2.4:1.3):1);else if(iy<-.06)c.sp-=(c.sp>0?55:16)*(-iy)*dt;else c.sp*=1-.5*dt;
+ if(hb)c.sp*=1-Math.min(1,4*dt);c.sp+=Math.sin(c.pt)*14*dt;
+ c.sp=cl(c.sp,-14,(c.airType==='tesla'?62:40)+(c.boost||0)*5);c.r-=ix*1.9/(1+Math.max(0,Math.abs(c.sp)-28)/45)*cl(c.sp/8,-1,1)*dt;mv(c,dt);
+ for(const o of cars)if(o!==c)hitCar(c,o);
+ if(Math.abs(s0)>8&&Math.abs(c.sp)<Math.abs(s0)*.85)nz(.25,500,.5);
+ if(Math.abs(c.sp)>5)for(const p of peds)if(!p.dead&&(p.x-c.x)**2+(p.z-c.z)**2<5.5)killP(p);
+ pl.x=c.x;pl.z=c.z;if(c.airType==='tesla'&&!c.flightMode){c.y=0;pl.y=0;c.m.position.set(c.x,hy(c.x,c.z)+.3,c.z);c.m.rotation.set(0,c.r,0)}
+ if(performance.now()-lastDrag>1400)yaw+=wr(c.r+PI-yaw)*Math.min(1,dt*2.2)}
+
+function flyDrive(dt,ix,iy){
+ const c=pl.car,plane=c.airType==='plane',tesla=c.airType==='tesla';
+ if(tesla){
+  // Tesla hover mode: no throttle button; joystick moves, vertical buttons lift/lower.
+  if(c.wallRide&&c.wallFace){const f=c.wallFace,vertical=(ak.u?1:0)-(ak.d?1:0);c.wallY=cl(c.wallY+vertical*10*dt,2,f.box.h-1.4);const along=iy*13*dt;
+   if(f.axis==='x'){c.x=f.val+f.side*1.35;c.z=cl(c.z+along,f.box.z0+2.6,f.box.z1-2.6);c.m.rotation.set(0,c.r,f.side*Math.PI/2)}
+   else{c.z=f.val+f.side*1.35;c.x=cl(c.x+along,f.box.x0+2.6,f.box.x1-2.6);c.m.rotation.set(-f.side*Math.PI/2,c.r,0)}
+   c.m.position.set(c.x,c.wallY,c.z);c.y=c.wallY-hy(c.x,c.z);pl.x=c.x;pl.z=c.z;pl.y=c.wallY;
+  }else{c.r-=ix*1.8*dt;const forward=iy*18,fx=Math.sin(c.r),fz=Math.cos(c.r);c.x+=fx*forward*dt;c.z+=fz*forward*dt;c.x=cl(c.x,-W-60,W+60);c.z=cl(c.z,-W-60,W+60);const vertical=(ak.u?1:0)-(ak.d?1:0);c.vy+=(vertical*8-c.vy)*Math.min(1,dt*4);c.y=cl(c.y+c.vy*dt,0,85);if(c.y===0&&c.vy<0)c.vy=0;c.m.position.set(c.x,hy(c.x,c.z)+c.y+.3,c.z);c.m.rotation.set(0,c.r,0);c.sp=Math.abs(forward);pl.x=c.x;pl.z=c.z;pl.y=c.y}
+  if(c.m.userData.fans)c.m.userData.fans.forEach(f=>f.rotation.y+=dt*24);
+  $('flightHud').textContent=(c.wallRide?'МАГНІТНА СТІНА · ':'ВИСОТА: ')+Math.max(0,Math.round(c.wallRide?c.wallY:c.y*2))+' м · ШВИДКІСТЬ: '+Math.round(c.sp*3)+' км/год';return;
+ }
+ if(flightThrottle)c.sp=Math.min(plane?58:32,c.sp+dt*(plane?12:8));else c.sp=Math.max(0,c.sp-dt*(plane?5:3));if(plane&&c.y<.5&&c.sp>17&&ak.u)c.vy=Math.max(c.vy,3);const turn=ix*(plane?1.05:1.45)*dt*(.35+Math.min(c.sp,35)/35);c.r-=turn;const lift=plane?cl((c.sp-14)/25,0,1):1;let climb=(ak.u?1:0)-(ak.d?1:0);if(plane){c.vy+=(climb*11*lift-1.5)*dt;if(c.y<.5&&climb<0)c.vy=0;c.vy=cl(c.vy,-12,13)}else{c.vy+=climb*15*dt;c.vy*=Math.max(0,1-dt*.8);c.vy=cl(c.vy,-13,13)}c.y+=c.vy*dt;if(!plane&&c.y<0)c.y=0;const ground=hy(c.x,c.z);if(c.y<.25){c.y=.25;c.vy=Math.max(0,c.vy)}const speed=c.sp*(plane?1:.82);c.x+=Math.sin(c.r)*speed*dt;c.z+=Math.cos(c.r)*speed*dt;c.x=cl(c.x,-W-60,W+60);c.z=cl(c.z,-W-60,W+60);c.m.position.set(c.x,ground+c.y,c.z);c.m.rotation.set(plane?-c.vy*.018:0,c.r,plane?ix*.08:0);if(c.m.userData.prop)c.m.userData.prop.rotation.z+=dt*25*c.sp/58;if(c.m.userData.fans)c.m.userData.fans.forEach(f=>f.rotation.y+=dt*18);if(c.m.userData.rotor)c.m.userData.rotor.rotation.y+=dt*32;if(c.m.userData.tailRotor)c.m.userData.tailRotor.rotation.x+=dt*38;pl.x=c.x;pl.z=c.z;pl.y=c.y;if(performance.now()-lastDrag>1200)yaw+=wr(c.r+PI-yaw)*Math.min(1,dt*1.8);$('flightHud').textContent='Висота: '+Math.max(0,Math.round(c.y*2))+' м · Швидкість: '+Math.round(c.sp*3)+' км/год'
+}
+
+function traffic(dt){for(const c of cars){if(c.airType){if(c!==pl.car){c.m.position.set(c.x,hy(c.x,c.z)+c.y,c.z)}continue}
+ if(c.police){const dx=pl.x-c.x,dz=pl.z-c.z,dist=Math.hypot(dx,dz)||1;let target=Math.atan2(dx,dz);if(c.leaving)target=Math.atan2(c.x-pl.x,c.z-pl.z);c.r+=wr(target-c.r)*Math.min(1,dt*1.8);if(c.leaving){c.sp+=(18-c.sp)*Math.min(1,dt*1.4);c.leaveTime=(c.leaveTime||0)+dt;if(c.leaveTime>7){c.removeMe=true}}else if(!c.stopped){const targetSpeed=dist>13?Math.min(22,(dist-10)*1.7):0;c.sp+=(targetSpeed-c.sp)*Math.min(1,dt*(targetSpeed<c.sp?3.8:1.5));if(dist<12&&Math.abs(c.sp)<2.2){c.sp=0;c.stopped=true}}else c.sp=0;if(c.sp>.05)mv(c,dt);c.y=hy(c.x,c.z);c.m.position.set(c.x,c.y,c.z);c.m.rotation.set(0,c.r,0);continue}
+ if(c.ln){const l=c.ln;let tg=l.v;
+  const sx=Math.sin(c.r),sz=Math.cos(c.r),dx=pl.x-c.x,dz=pl.z-c.z,al=dx*sx+dz*sz,la=Math.abs(dx*sz-dz*sx);
+  if(pl.dead<=0&&al>0&&al<5+c.sp*1.1&&la<2.4){if(!c.sn){c.sn=1;c.ram=!pl.car&&Math.random()<.25;honk()}if(!c.ram)tg=0}else c.sn=0;
+  for(const o of cars)if(o!==c&&o.ln===l){const g=(o.s-c.s+l.L)%l.L;if(g<10)tg=Math.min(tg,g<7?0:o.sp)}
+  c.sp+=(tg-c.sp)*Math.min(1,dt*(tg<c.sp?3.5:1.2));c.s=(c.s+c.sp*dt)%l.L;const p=l.d*(-l.L/2+c.s);
+  if(l.h){c.x=p+(l.o||0);c.z=l.c;c.r=l.d>0?PI/2:-PI/2}else{c.x=l.c;c.z=p;c.r=l.d>0?0:PI}}
+ else if(c!==pl.car){c.sp*=1-Math.min(1,1.5*dt);if(Math.abs(c.sp)<.05)c.sp=0;if(c.sp||c.vx||c.vz||c.av)mv(c,dt);
+  if(c.home&&c.drv&&(c.x-pl.x)**2+(c.z-pl.z)**2>19600){c.ln=c.home;c.s=R(0,c.ln.L);c.sp=c.ln.v;c.dm=0;c.vx=c.vz=c.av=0}}
+ if(!c.ln){c.y=hy(c.x,c.z);const fx=Math.sin(c.r)*2.2,fz=Math.cos(c.r)*2.2;c.pt+=(Math.atan2(hy(c.x-fx,c.z-fz)-hy(c.x+fx,c.z+fz),4.4)-c.pt)*Math.min(1,dt*8);if(c.y<-1.2)c.sp*=1-dt*1.5}
+ const m=c.m;m.visible=(c.x-pl.x)**2+(c.z-pl.z)**2<25000;m.position.set(c.x,c.y,c.z);m.rotation.set(c.pt,c.r,c.sd*.07*c.dm);m.scale.set(1-.05*c.dm,1-.08*c.dm,1-.14*c.dm)}}
+function pedsUp(dt){for(let i=0;i<peds.length;i++){const p=peds[i],m=p.m;
+ m.visible=(p.x-pl.x)**2+(p.z-pl.z)**2<22000;if(p.rob<0)p.rob+=dt;
+ if(p.dead){p.dt+=dt;const k=Math.min(1,p.dt/.35);m.rotation.x=-k*PI/2;m.position.y=.2+.2*k;pose(m,0,0);if(p.dt>(p.sh?40:7)){if(p.sh)newSeller(i,p.sh);else newPed(i)}continue}
+ if(p.stun>0){p.stun-=dt;const k=p.stun>.4?1:Math.max(0,p.stun/.4);m.rotation.x=-k*PI/2;m.position.y=.2*k;pose(m,0,0);continue}
+ m.rotation.x=0;
+ if(p.hos>0){p.hos-=dt;m.rotation.y=Math.atan2(pl.x-p.x,pl.z-p.z);pose(m,2,0);p.cd-=dt;
+  const d=Math.hypot(pl.x-p.x,pl.z-p.z);
+  if(p.cd<=0&&d<55&&pl.dead<=0&&los(p)){p.cd=R(.9,1.5);const ok=Math.random()<.4;if(ok)hurt(pl.car?3:7);const e=ok?0:R(-2,2);tracer(p.x,1.5,p.z,pl.x+e,1.2,pl.z+e*.7);nz(.08,2000,.12)}
+  continue}
+ if(p.aim>0){p.aim-=dt;m.rotation.y=Math.atan2(pl.x-p.x,pl.z-p.z);pose(m,1,0);
+  if(p.sh&&p.rob>=0&&(p.rob+=dt)>2.2){p.rob=-30;const g=R(200,600)|0;money+=g;hud();toast('Пограбування! +$'+g)}continue}
+ if(p.seen){p.seen=0;if(p.sh){if(p.rob>=0)p.rob=0}else if(!p.free)p.pan=8}
+ if(p.sh){const d=Math.hypot(pl.x-p.x,pl.z-p.z);m.rotation.y=d<14?Math.atan2(pl.x-p.x,pl.z-p.z):(p.sh.dz>0?0:PI);pose(m,0,0);continue}
+ if(p.free){const d=Math.hypot(pl.x-p.x,pl.z-p.z)||1;let dx=(pl.x-p.x)/d,dz=(pl.z-p.z)/d,v=0,md=0;p.t+=dt;
+  if(p.mode==1){if(p.arm&&d<30&&p.t>1.5)p.hos=12;if(d>2.6)v=6.2;else md=1}else{dx=-dx;dz=-dz;v=6.5}
+  p.x+=dx*v*dt;p.z+=dz*v*dt;col(p,.4);p.ph+=dt*v*1.6;
+  m.position.set(p.x,gy(p.x,p.z),p.z);m.rotation.y=Math.atan2(dx,dz);pose(m,md,v?Math.sin(p.ph)*.7:0);
+  if(p.t>25&&d>60)newPed(i);continue}
+ const a=24.5+p.off,v=p.pan>0?6:p.v;p.pan-=dt;p.u=(p.u+p.dir*v*dt/(2*a)+4)%4;p.ph+=dt*v*3.2;
+ const s=p.u|0,f=p.u-s;let x,z,dx,dz;
+ if(s==0){x=-a+2*a*f;z=-a;dx=1;dz=0}else if(s==1){x=a;z=-a+2*a*f;dx=0;dz=1}else if(s==2){x=a-2*a*f;z=a;dx=-1;dz=0}else{x=-a;z=a-2*a*f;dx=0;dz=-1}
+ p.x=p.kx+x;p.z=p.kz+z;m.position.set(p.x,.2,p.z);m.rotation.y=Math.atan2(dx*p.dir,dz*p.dir);pose(m,0,Math.sin(p.ph)*.6)}}
+function camUp(){const c=pl.car,tx=c?c.x:pl.x,tz=c?c.z:pl.z,ty=(c?(c.wallRide?c.wallY:(hy(c.x,c.z)+(c.airType?c.y:0))):pl.y)+(c?1.8:1.7),sh=c?0:(shiftLock?1.65:1.1),dist=(c?10.5:6)*(mouseAim?.48:1);
+ const cp=Math.cos(pit),dx=Math.sin(yaw)*cp,dy=Math.sin(pit),dz=Math.cos(yaw)*cp;
+ const ox=tx+Math.cos(yaw)*sh,oz=tz-Math.sin(yaw)*sh;let t=dist;
+ for(const b of BX){const s=rb(ox,ty,oz,dx,dy,dz,b);if(s>0&&s<t)t=Math.max(.8,s-.5)}
+ if(dy<0&&ty+dy*t<.5)t=(.5-ty)/dy;
+ cam.position.set(ox+dx*t,Math.max(ty+dy*t,hy(ox+dx*t,oz+dz*t)+.8),oz+dz*t);cam.lookAt(ox,ty,oz);cam.updateMatrixWorld();
+ sk.position.copy(cam.position);sun.position.set(tx-60,95,tz+45);sun.target.position.set(tx,0,tz)}
+function die(){pl.dead=2.6;if(pl.car){pl.car=null;pl.m.visible=true;document.body.classList.remove('air','teslaCar','teslaFlight')}pl.m.rotation.x=-PI/2;pl.m.position.y=.2;$('msg').textContent='ТЕБЕ ВБИТО';$('msg').style.opacity=1}
+function respawn(){pl.dead=0;pl.hp=devGodMode?PLAYER_MAX:100;pl.ar=devGodMode?PLAYER_MAX:0;pl.x=5;pl.z=5;pl.y=0;pl.m.rotation.x=0;$('msg').style.opacity=0;peds.forEach(p=>p.hos=0)}
+const mp=$('map'),mc=mp.getContext('2d'),bigMap=$('bigMap'),bmc=bigMap.getContext('2d'),mapFull=$('mapFull');
+const milX=112,milZ=S+390,bankX=35,bankZ=35,bank2X=X2+35,bank2Z=35;
+function drawMap(ctx,size,range){
+ const sca=size/(range*2);ctx.clearRect(0,0,size,size);ctx.fillStyle='#258da5';ctx.fillRect(0,0,size,size);
+ ctx.save();ctx.translate(size/2,size/2);ctx.rotate(yaw);ctx.scale(sca,sca);ctx.translate(-pl.x,-pl.z);
+ // city blocks and streets
+ ctx.fillStyle='#bdb7aa';CT.forEach(C=>C.bc.forEach(x=>C.bc.forEach(z=>ctx.fillRect(C.cx+x-27,z-27,54,54))));
+ ctx.fillStyle='#e9cf9f';ctx.fillRect(-H-30,H+32,2*H+60,22);ctx.strokeStyle='#27334e';ctx.lineWidth=5;CT.forEach(C=>{const e=C.n*P/2+12;C.rc.forEach(a=>{ctx.beginPath();ctx.moveTo(C.cx-e,a);ctx.lineTo(C.cx+e,a);ctx.moveTo(C.cx+a,-e);ctx.lineTo(C.cx+a,e);ctx.stroke()})});[-P,0,P].forEach(a=>{ctx.beginPath();ctx.moveTo(H,a);ctx.lineTo(X2-210,a);ctx.stroke()});ctx.fillStyle='#fff';ctx.font='bold 14px sans-serif';ctx.fillText('SUNSET BAY',X2-45,-225);
+ // airport and runway
+ ctx.fillStyle='#34394c';ctx.fillRect(-24,267+S,48,230);ctx.fillStyle='#f7f0df';for(let az=280;az<490;az+=24)ctx.fillRect(-.7,az+S,1.4,10);ctx.fillStyle='#fff';ctx.font='bold 12px sans-serif';ctx.fillText('SUNSET AIRPORT',-24,263+S);ctx.fillStyle='#d8b34c';ctx.fillRect(milX-65,milZ-55,130,110);ctx.strokeStyle='#ffe59a';ctx.lineWidth=2/sca;ctx.strokeRect(milX-65,milZ-55,130,110);ctx.fillStyle='#fff2bd';ctx.font='bold 13px sans-serif';ctx.fillText('FORT NEON',milX-35,milZ-61);ctx.fillStyle='#47d8ff';ctx.fillRect(bankX-5,bankZ-5,10,10);ctx.fillRect(bank2X-5,bank2Z-5,10,10);ctx.fillStyle='#fff';ctx.font='bold 12px sans-serif';ctx.fillText('BANK 1',bankX+8,bankZ-8);ctx.fillText('BANK 2',bank2X+8,bank2Z-8);
+ // shops, color-coded by category
+ ctx.fillStyle='#ffffff';ctx.fillRect(homeX-4,homeZ-4,8,8);if(mission){ctx.strokeStyle='#ffd43b';ctx.lineWidth=2/sca;ctx.beginPath();ctx.arc(mission.x,mission.z,6,0,PI*2);ctx.stroke()}SHOPS.forEach(s=>{ctx.fillStyle=['#70e36b','#ff4777','#37d8f3','#ffd34d','#b78aff','#ff9a45'][s.t];ctx.fillRect(s.x-5,s.z-5,10,10);});
+ // vehicles and people
+ cars.forEach(c=>{if((c.x-pl.x)**2+(c.z-pl.z)**2<range*range){ctx.fillStyle=c.police?'#ff334f':c.airType?'#42f5e9':'#c5d2dc';ctx.fillRect(c.x-2.5,c.z-4,5,8)}});
+ peds.forEach(p=>{if(p.dead)return;ctx.fillStyle=p.hos>0?'#ff334f':'#f4f4f4';ctx.fillRect(p.x-1.8,p.z-1.8,3.6,3.6)});
+ // player arrow
+ ctx.save();ctx.translate(pl.x,pl.z);ctx.rotate((pl.car?pl.car.r:pl.r)-yaw);ctx.fillStyle='#37d9ff';ctx.strokeStyle='#ffffff';ctx.lineWidth=1.5/sca;ctx.beginPath();ctx.moveTo(0,-8);ctx.lineTo(-5,6);ctx.lineTo(0,3);ctx.lineTo(5,6);ctx.closePath();ctx.fill();ctx.stroke();ctx.restore();
+ ctx.restore();
+ // border and compass
+ ctx.strokeStyle='#d9e5ed';ctx.lineWidth=2;ctx.strokeRect(1,1,size-2,size-2);ctx.fillStyle='#fff';ctx.font=`bold ${Math.max(11,size*.025)}px system-ui`;ctx.fillText('N',size/2-4,16);
+}
+function radar(){drawMap(mc,180,145);if(mapFull.classList.contains('open'))drawMap(bmc,700,720)}
+mp.addEventListener('pointerdown',e=>{e.preventDefault();mapFull.classList.add('open');$('extras').classList.remove('open');radar()});
+$('mapBtn').addEventListener('pointerdown',e=>{e.stopPropagation();mapFull.classList.add('open');$('extras').classList.remove('open');radar()});
+$('menuToggle').addEventListener('pointerdown',e=>{e.stopPropagation();toggleExtrasMenu()});
+$('mapClose').addEventListener('pointerdown',e=>{e.stopPropagation();mapFull.classList.remove('open')});
+mapFull.addEventListener('pointerdown',e=>{if(e.target===mapFull)mapFull.classList.remove('open')});
+/* ---------- Neon City 2.0: поліція, місії, гараж і сховище ---------- */
+let wanted=0,crimeClock=0,policeCars=[],policeOfficers=[],mission=null,missionCount=0,ownedCars=0,homeX=-18,homeZ=18,homeReady=false,homeOwned=false,policeFlash=0;
+const starUI=$('wanted'),missionUI=$('missionText'),garageUI=$('garageUI'),garagePanel=$('garagePanel');
+function crime(v){wanted=cl(wanted+v,0,5);crimeClock=0;updateWanted()}
+function updateWanted(){starUI.textContent=wanted?('★'.repeat(Math.ceil(wanted))+'☆'.repeat(5-Math.ceil(wanted))):'';}
+function spawnOfficer(car,side){
+ const x=car.x+Math.cos(car.r)*side*1.65-Math.sin(car.r)*2.1;
+ const z=car.z-Math.sin(car.r)*side*1.65-Math.cos(car.r)*2.1;
+ const m=mkH(0x1557b8,true);
+ // Dark-blue trousers and a clearly visible blue uniform
+ m.userData.l.forEach(g=>g.children.forEach(o=>{o.material=mat(0x101f3b);o.material.vertexColors=false}));
+ m.position.set(x,gy(x,z),z);m.rotation.y=Math.atan2(pl.x-x,pl.z-z);
+ sc.add(m);policeOfficers.push({m,x,z,cd:R(.5,1.1),car,dead:false,hp:100,returning:false});car.liveOfficers=(car.liveOfficers||0)+1;
+}
+function spawnPolice(){while(policeCars.length<Math.min(5,Math.ceil(wanted))){const a=R(0,PI*2),d=R(32,48),c=addCar(pl.x+Math.sin(a)*d,pl.z+Math.cos(a)*d,0,null,0);c.police=1;c.sp=0;c.pcd=1;c.m.scale.set(1.03,1.03,1.03);
+ c.m.material=mat(0x1255b5);c.m.material.vertexColors=false;
+ const bar=new T.Group();bar.position.y=1.48;const l1=new T.Mesh(new T.BoxGeometry(.62,.18,.35),mat(0xff253d)),l2=new T.Mesh(new T.BoxGeometry(.62,.18,.35),mat(0x258bff));l1.position.x=-.34;l2.position.x=.34;bar.add(l1,l2);c.m.add(bar);c.light=bar;c.stopped=false;policeCars.push(c)}}
+function policeUp(dt){
+ policeFlash+=dt;if(wanted>0){crimeClock+=dt;spawnPolice();if(crimeClock>28){wanted=Math.max(0,wanted-dt*.22);updateWanted()}}else crimeClock=0;
+ if(wanted<=0)policeCars.forEach(c=>{c.leaving=true;c.stopped=false;policeOfficers.filter(p=>p.car===c&&!p.dead).forEach(p=>p.returning=true)});
+ policeCars.forEach((c,i)=>{if(c.light){c.light.children[0].visible=Math.sin(policeFlash*9+i)>.0;c.light.children[1].visible=!c.light.children[0].visible}
+  const crew=policeOfficers.filter(p=>p.car===c&&!p.dead);
+  if(c.stopped&&!c.officersSpawned&&wanted>0){c.officersSpawned=true;spawnOfficer(c,-1);spawnOfficer(c,1)}
+  if(c.destroyTimer>0){c.destroyTimer-=dt;if(c.destroyTimer<=0)c.removeMe=true}
+  if(c.leaving&&crew.length===0)c.removeMe=true;
+  if(c.removeMe){sc.remove(c.m);const ci=cars.indexOf(c);if(ci>=0)cars.splice(ci,1);policeCars.splice(i,1)}
+ });
+ for(let i=policeOfficers.length-1;i>=0;i--){const p=policeOfficers[i],c=p.car;if(p.dead){policeOfficers.splice(i,1);continue}if(!c||!policeCars.includes(c)){sc.remove(p.m);policeOfficers.splice(i,1);continue}
+  const dx=pl.x-p.x,dz=pl.z-p.z,d=Math.hypot(dx,dz),cx=c.x-p.x,cz=c.z-p.z,cd=Math.hypot(cx,cz);
+  if(wanted<=0||d>42)p.returning=true;
+  if(p.returning){p.m.rotation.y=Math.atan2(cx,cz);const step=Math.min(1,dt*3.2);p.x+=cx*step;p.z+=cz*step;p.m.position.set(p.x,gy(p.x,p.z),p.z);if(cd<2.1){sc.remove(p.m);policeOfficers.splice(i,1);c.liveOfficers=Math.max(0,(c.liveOfficers||0)-1);if(c.liveOfficers===0){if(wanted<=0)c.leaving=true;else{c.stopped=false;c.officersSpawned=false}}}continue}
+  p.m.visible=d*d<22000;p.m.rotation.y=Math.atan2(dx,dz);pose(p.m,2,0);p.cd-=dt;
+  if(p.cd<=0&&d<58&&pl.dead<=0&&los(p)){p.cd=R(.85,1.25);const hit=Math.random()<.42;if(hit)hurt(pl.car?4:8);const spread=hit?0:R(-2.5,2.5);tracer(p.x,1.55,p.z,pl.x+spread,1.15,pl.z+spread*.7);nz(.08,1900,.12)}
+ }
+}
+function openGarage(){if(pl.car){toast('Вийди з авто, щоб відкрити гараж');return}garagePanel.innerHTML='<h2>ГАРАЖ NEON CITY</h2><div style="text-align:center;margin-bottom:10px">Гроші: $'+money+'</div>';
+ const rows=[['🚗 Міський седан','$350',350,0xd7263d],['🏎 Спорткар','$900',900,0x1b98e0],['🚙 Позашляховик','$1200',1200,0x3bb273],['🚙 TESLA ROADSTER — $10000', '$10000',10000,0x36d8e2,'tesla']];
+ rows.forEach(([n,pr,cost,color,kind],i)=>{const d=document.createElement('div');d.className='it';d.innerHTML='<span>'+n+'</span><b>'+pr+'</b>';d.onpointerdown=()=>{if(money<cost)return toast('Не вистачає грошей');money-=cost;const c=kind==='tesla'?addAircraft('tesla',pl.x+Math.sin(pl.r)*7,pl.z+Math.cos(pl.r)*7):addCar(pl.x+Math.sin(pl.r)*5,pl.z+Math.cos(pl.r)*5,0,null,0);if(!kind){c.m.material=mat(color);c.m.material.vertexColors=false;c.m.traverse(o=>{if(o.isMesh){o.material=mat(color);o.material.vertexColors=false}})}c.sp=0;c.bought=1;ownedCars++;hud();toast(kind?'Tesla Roadster придбано! Звичайна їзда + режим польоту':'Авто придбано! Підійди та сідай');openGarage()};garagePanel.append(d)});
+ const tune=[['🔧 Ремонт поточного авто',100,()=>{if(!pl.car)return toast('Спочатку сядь у своє авто');pl.car.dm=0;toast('Авто відремонтовано') }],['⚡ Двигун + швидкість',250,()=>{if(!pl.car)return toast('Спочатку сядь у своє авто');pl.car.boost=(pl.car.boost||0)+1;toast('Двигун покращено')}],['🎨 Перефарбувати авто',80,()=>{if(!pl.car)return toast('Спочатку сядь у своє авто');const colors=[0xff3355,0x22ccff,0xffd43b,0x55dd88,0xaa66ff];pl.car.m.traverse(o=>{if(o.isMesh){o.material=mat(colors[Math.random()*colors.length|0]);o.material.vertexColors=false}});wanted=Math.max(0,wanted-2);updateWanted();toast('Нове забарвлення! Розшук знижено')}]];
+ tune.forEach(([n,cost,fn])=>{const d=document.createElement('div');d.className='it';d.innerHTML='<span>'+n+'</span><b>$'+cost+'</b>';d.onpointerdown=()=>{if(money<cost)return toast('Не вистачає грошей');money-=cost;fn();hud();openGarage()};garagePanel.append(d)});
+ const close=document.createElement('div');close.className='it';close.style.justifyContent='center';close.textContent='✕ ЗАКРИТИ';close.onpointerdown=()=>garageUI.style.display='none';garagePanel.append(close);garageUI.style.display='flex'}
+$('garageBtn').onpointerdown=()=>{$('extras').classList.remove('open');openGarage()};garageUI.onpointerdown=e=>{if(e.target===garageUI)garageUI.style.display='none'};
+const MK=['drive','delivery','race','chase','survive'];let lastMK='';
+function startMission(){if(mission){toast('Спочатку заверши поточне завдання');return}
+ let k;do{k=MK[Math.random()*5|0]}while(k===lastMK);lastMK=k;const c1=()=>[R(-400,400),R(-400,400)];
+ const pts={drive:[c1()],delivery:[c1(),[X2+R(-150,150),R(-150,150)]],race:[[330,0],[S+257,0],[X2-60,0],[X2+170,R(-60,60)]],chase:[],survive:[]}[k];
+ const m=mission={kind:k,pts,i:0,t:0,x:0,z:0,startKills:kills,lim:{drive:150,delivery:170,race:75,chase:90,survive:150}[k],hold:0};
+ const ring=new T.Mesh(new T.TorusGeometry(5,.45,8,28),new T.MeshBasicMaterial({color:0xffd43b}));ring.rotation.x=PI/2;sc.add(ring);m.ring=ring;
+ if(k==='chase'){const a=R(0,PI*2),c=addCar(pl.x+Math.sin(a)*40,pl.z+Math.cos(a)*40,a+PI,null,0);c.m.traverse(o=>{if(o.isMesh)o.material=mat(0xff3355)});c.sp=18;m.car=c}
+ m.set=()=>{const q=pts[m.i];if(q){m.x=q[0];m.z=q[1];ring.position.set(q[0],.8+hy(q[0],q[1]),q[1])}};m.set();toast(k==='race'?'ГОНКА між містами! Чекпоінти через міст':'Нове завдання прийнято!')}
+function missionUp(dt){if(!mission)return;const m=mission,k=m.kind;m.t+=dt;
+ const txt={drive:'Доїдь до жовтої точки',delivery:m.i?'Доставка: Sunset Bay':'Забери посилку',race:'ГОНКА: чекпоінт '+(m.i+1)+'/4',chase:'Наздожени червоне авто',survive:'Нейтралізуй 3 ворогів'}[k];
+ missionUI.textContent=txt+' · '+Math.max(0,Math.ceil(m.lim-m.t))+' с';
+ if(k==='survive'){if(kills-m.startKills>=3)return finishMission(600)}
+ else if(k==='chase'){const c=m.car;m.x=c.x;m.z=c.z;m.ring.position.set(c.x,4,c.z);if(Math.hypot(pl.x-c.x,pl.z-c.z)<13)m.hold+=dt;if(m.hold>6||c.dm>.85)return finishMission(800)}
+ else if(Math.hypot(pl.x-m.x,pl.z-m.z)<8){m.i++;if(m.i>=m.pts.length)return finishMission({drive:450,delivery:900,race:1100}[k]);toast(k==='race'?'Чекпоінт '+m.i+'/4':'Посилку забрано — їдь у Sunset Bay!');m.set()}
+ if(m.t>m.lim){sc.remove(m.ring);mission=null;missionUI.textContent='Завдання провалено';toast('Час вийшов — завдання провалено')}}
+function finishMission(rw){money+=rw;hud();sc.remove(mission.ring);mission=null;missionCount++;missionUI.textContent='Завдання виконано: +$'+rw;toast('МІСІЮ ВИКОНАНО! +$'+rw)}
+$('missionBtn').onpointerdown=()=>{$('extras').classList.remove('open');if(mission){toast('Активне завдання вже є');return}startMission()};
+function makeHome(){if(homeReady)return;homeReady=true;const x=homeX,z=homeZ;const base=bx(12,.5,10,0x343b4c,x,.25,z),body=bx(10,5,8,0x64748b,x,2.8,z),roof=bx(11,.6,9,0x222b3a,x,5.6,z);sc.add(base,body,roof);sc.add(bx(2.2,3,.2,0x18202c,x,1.8,z+4.1),bx(2.5,1.8,.2,0x39c6ff,x-3,3,z+4.1));const sign=new T.Mesh(new T.PlaneGeometry(7,1.4),sg('SAFE HOUSE','#ffffff'));sign.position.set(x,6.8,z+4.2);sc.add(sign)}
+makeHome();
+$('homeBtn').onpointerdown=()=>{$('extras').classList.remove('open');const d=Math.hypot(pl.x-homeX,pl.z-homeZ);if(d>18){toast('Сховище позначене білою точкою на карті — підійди ближче');return}if(!homeOwned){if(money<250){toast('Купівля сховища коштує $250');return}money-=250;homeOwned=true}pl.hp=devGodMode?PLAYER_MAX:100;pl.ar=devGodMode?PLAYER_MAX:100;wanted=0;updateWanted();crimeClock=0;hud();toast('Сховище активовано: здоров’я та броню відновлено')};
+
+/* ---------- внутрішньоігровий телефон та меню розробника ---------- */
+let phoneOpen=false,devOpen=false,phoneDigits='';
+const phoneUI=$('phoneUI'),devUI=$('devUI'),phoneNumber=$('phoneNumber'),phoneHint=$('phoneHint');
+function fitGameToScreen(){const vv=window.visualViewport;const h=vv&&vv.height?vv.height:window.innerHeight;document.documentElement.style.setProperty('--app-vh',(h*.01)+'px');document.documentElement.style.setProperty('--app-vw',(window.innerWidth*.01)+'px');const shell=$('phoneShell');if(shell){shell.style.maxHeight=Math.max(220,h-16)+'px';shell.style.maxWidth=Math.max(220,window.innerWidth-16)+'px';}}
+fitGameToScreen();window.addEventListener('resize',fitGameToScreen,{passive:true});window.addEventListener('orientationchange',()=>setTimeout(fitGameToScreen,180),{passive:true});if(window.visualViewport){window.visualViewport.addEventListener('resize',fitGameToScreen,{passive:true});window.visualViewport.addEventListener('scroll',fitGameToScreen,{passive:true});}
+function renderPhone(){phoneNumber.textContent=phoneDigits||'_ _ _ _';phoneHint.textContent=phoneDigits.length?'Номер введено: '+phoneDigits.length+' цифр':'Введи номер і натисни виклик'}
+function closePhone(){phoneOpen=false;phoneUI.classList.remove('open')}
+function openPhone(){if(pl.dead>0)return;phoneOpen=true;phoneDigits='';renderPhone();$('extras').classList.remove('open');phoneUI.classList.add('open')}
+function closeDev(){devOpen=false;devUI.classList.remove('open')}
+function spawnDevVehicle(type,silent=false){const x=pl.x+Math.sin(pl.r)*9,z=pl.z+Math.cos(pl.r)*9;let c;if(type==='tank'){c=addCar(x,z,0,null,0);const g=new T.Group();g.add(bx(5.4,1.5,7.8,0x263b27,0,.95,0),bx(4.5,.55,5.2,0x354b2e,0,1.85,-.2),bx(3.3,.9,3.6,0x405637,0,2.45,-.25),bx(.85,.6,5.8,0x202b1d,0,2.5,2.5),bx(1.25,.5,1.4,0x263522,0,2.3,2.4));for(const side of [-1,1]){g.add(bx(.9,1.25,8.2,0x171e19,side*2.9,.9,0),bx(.5,1.05,7.4,0x354535,side*3.15,.9,0));for(let j=0;j<7;j++){const w=new T.Mesh(new T.CylinderGeometry(.48,.48,.35,12),mat(0x171b18));w.rotation.z=PI/2;w.position.set(side*3.18,.9,-3+j);g.add(w)}}const hatch=bx(1.1,.18,1.1,0x172219,0,3,-.2);g.add(hatch);sc.remove(c.m);c.m=g;g.rotation.order='YXZ';g.position.set(x,hy(x,z)+.3,z);sc.add(g);c.bought=1;c.isTank=true;if(!silent)toast('Справжній бойовий танк створено — сідай і стріляй пробілом');closeDev();return}if(type==='car'||type==='sport'){c=addCar(x,z,0,null,0);c.sp=0;c.bought=1;c.m.traverse(o=>{if(o.isMesh){o.material=mat(type==='sport'?0x21c7ff:0xf2f2f2);o.material.vertexColors=false}})}else c=addAircraft(type,x,z);c.sp=0;toast(type==='heli'?'Гелікоптер створено поруч':type==='plane'?'Літак створено поруч':type==='tesla'?'Tesla Roadster створено поруч':'Автомобіль створено поруч');closeDev()}
+function tankFire(){const c=pl.car;if(!c||!c.isTank)return;const dir=new T.Vector3(Math.sin(c.r),.02,Math.cos(c.r)),origin=new T.Vector3(c.x,hy(c.x,c.z)+3,c.z).addScaledVector(dir,4);const shell=new T.Mesh(new T.SphereGeometry(.42,10,8),new T.MeshBasicMaterial({color:0xffc66b}));shell.position.copy(origin);sc.add(shell);let t=0;const tick=()=>{if(!shell.parent)return;t+=.035;shell.position.addScaledVector(dir,2.4);if(t>1.8){sc.remove(shell);const boom=new T.Mesh(new T.SphereGeometry(3,12,10),new T.MeshBasicMaterial({color:0xff7b26,transparent:true,opacity:.7}));boom.position.copy(shell.position);sc.add(boom);setTimeout(()=>sc.remove(boom),350);return}requestAnimationFrame(tick)};requestAnimationFrame(tick)}
+function devAction(a){switch(a){case'health':devGodMode=true;pl.hp=PLAYER_MAX;pl.ar=PLAYER_MAX;break;case'armor':devGodMode=true;pl.hp=PLAYER_MAX;pl.ar=PLAYER_MAX;break;case'heal':devGodMode=true;pl.hp=PLAYER_MAX;pl.ar=PLAYER_MAX;break;case'wanted':wanted=0;crimeClock=0;updateWanted();break;case'cash1':money+=1000;break;case'cash10':money+=10000;break;case'cash100':money+=100000;break;case'cashmax':money=999999;break;case'car':case'sport':case'heli':case'plane':case'tesla':case'tank':spawnDevVehicle(a);hud();return;}hud();toast(({health:'Здоров’я: 9 999 999 — БЕЗСМЕРТЯ УВІМКНЕНО',armor:'Броня: 9 999 999 — БЕЗСМЕРТЯ УВІМКНЕНО',heal:'Здоров’я та броня: 9 999 999 — БЕЗСМЕРТЯ УВІМКНЕНО',wanted:'Розшук скинуто',cash1:'Додано $1 000',cash10:'Додано $10 000',cash100:'Додано $100 000',cashmax:'Баланс встановлено: $999 999'})[a]||'Готово')}
+for(let n=1;n<=9;n++){const b=document.createElement('button');b.className='phoneKey';b.innerHTML=String(n)+'<small>'+(['','ABC','DEF','GHI','JKL','MNO','PQRS','TUV','WXYZ'][n]||'')+'</small>';b.addEventListener('click',()=>{if(phoneDigits.length<12)phoneDigits+=String(n);renderPhone()});$('phoneKeys').append(b)}
+const blankKey1=document.createElement('div');$('phoneKeys').append(blankKey1);const zero=document.createElement('button');zero.className='phoneKey';zero.innerHTML='0<small>+</small>';zero.addEventListener('click',()=>{if(phoneDigits.length<12)phoneDigits+='0';renderPhone()});$('phoneKeys').append(zero,document.createElement('div'));
+$('phoneBack').onclick=()=>{phoneDigits=phoneDigits.slice(0,-1);renderPhone()};$('phoneClear').onclick=()=>{phoneDigits='';renderPhone()};
+$('phoneCall').onclick=()=>{if(phoneDigits==='0192'){closePhone();devOpen=true;devUI.classList.add('open');tn(620,.12,.12,'sine',980);toast('DEVELOPER MODE РОЗБЛОКОВАНО')}else{phoneHint.textContent='Немає відповіді. Перевір номер.';tn(180,.18,.08,'square',120)}};
+$('phoneClose').onclick=closePhone;$('phoneBtn').onpointerdown=openPhone;$('devClose').onclick=closeDev;
+devUI.querySelectorAll('[data-dev]').forEach(b=>b.addEventListener('click',()=>devAction(b.dataset.dev)));
+phoneUI.addEventListener('click',e=>{if(e.target===phoneUI)closePhone()});devUI.addEventListener('click',e=>{if(e.target===devUI)closeDev()});
+
+const oldDrawMap=drawMap;
+
+function upd(dt){
+ if(nuclearCutscene){nuclearUpdate(dt);return}
+ const tf=!!(pl.car&&pl.car.airType==='tesla'&&pl.car.flightMode),ix=cl((tf?tfx:jx)+(K.KeyD||K.ArrowRight?1:0)-(K.KeyA||K.ArrowLeft?1:0)+(tf?0:ak.r-ak.l),-1,1),iy=cl((tf?tfy:jy)+(K.KeyW||K.ArrowUp?1:0)-(K.KeyS||K.ArrowDown?1:0)+(tf?0:ak.u-ak.d),-1,1),fr=fh||K.Space?1:0;
+ if(pl.dead>0){pl.dead-=dt;if(pl.dead<=0)respawn()}
+ const alive=pl.dead<=0;pl.hurtT+=dt;pl.cdh-=dt;cd-=dt;hurtA=Math.max(0,hurtA-dt*1.6);
+ if(alive&&pl.hurtT>6&&!devGodMode)pl.hp=Math.min(100,pl.hp+4*dt);
+ if(alive&&!phoneOpen&&!devOpen){if(pl.car)drive(dt,ix,iy,K.Space);else walk(dt,ix,iy,fr&&!wo)}
+ expPack(dt);traffic(dt);pedsUp(dt);policeUp(dt);missionUp(dt);camUp();
+ if(alive&&!pl.car&&!wo){const ap=aimPed();if(ap){ap.aim=.45;if(!ap.seen){ap.seen=1;if(ap.arm&&Math.random()<.5){ap.hos=14;ap.aim=0}}}}
+ if(alive&&pl.car&&pl.car.isTank&&fr&&cd<=0){cd=.8;tankFire()}if(alive&&!pl.car&&fr&&!wo&&cd<=0)shoot();
+ if(pl.hp<=0&&alive)die();
+ if(pl.car){eng();if(eo){eo.frequency.value=40+Math.abs(pl.car.sp)*4.5;eg.gain.value=.04+Math.abs(pl.car.sp)/40*.05}}else if(eg)eg.gain.value=0;
+ for(let i=trs.length;i--;){trs[i][1]-=dt;if(trs[i][1]<=0){const l=trs[i][0];sc.remove(l);l.geometry.dispose();l.material.dispose();trs.splice(i,1)}}
+ $('arb').style.width=(devGodMode?100:cl(pl.ar,0,100))+'%';$('hpb').style.width=(devGodMode?100:cl(pl.hp,0,100))+'%';$('hpb').style.background=pl.hp<35?'#f87171':'#4ade80';
+ $('hurt').style.opacity=hurtA;cxh.style.display=pl.car?'none':'block';document.body.classList.toggle('c',!!pl.car);document.body.classList.toggle('air',!!(pl.car&&pl.car.airType&&pl.car.airType!=='tesla'));document.body.classList.toggle('teslaCar',!!(pl.car&&pl.car.airType==='tesla'));document.body.classList.toggle('teslaFlight',!!(pl.car&&pl.car.airType==='tesla'&&pl.car.flightMode));
+ const nc=pl.car?1:(alive?nearCar():null),cb=$('car'),near=pl.car?null:nearCar(),s=pl.car?'🚪<br>Вийти':near&&near.airType==='plane'?'✈️<br>Літак':near&&near.airType==='tesla'?'🛸<br>Tesla':'🚗<br>Сісти';
+ cb.style.display=nc?'flex':'none';if(s!==ul){ul=s;cb.innerHTML=s}
+ $('shop').style.display=shopNear()?'flex':'none';SHOPS.forEach(q=>q.rf.visible=!(Math.abs(pl.x-q.x)<8.5&&Math.abs(pl.z-q.z)<8.5));
+ militaryUpdate(dt);$('nukeBtn').classList.toggle('show',!!(pl.car&&pl.car.airType==='plane'));$('tankFireBtn').classList.toggle('show',!!(pl.car&&pl.car.isTank));radar()}
+
+/* ---------- розширення: вертоліт, блокпости, гранати, день/ніч, дощ, схованки, збереження ---------- */
+let pkGot=new Set(),ach=new Set(),pheli=null,pcd=0,blk2=[],bcd=0,gcd=0,tod=.2,rainI=0,rainOn=false,rainT=R(60,120),sd=7;const gr=[],fx=[],PKS=[];
+const hemi=sc.children.find(o=>o.isHemisphereLight),FD=new T.Color(0xd7b49a),FN=new T.Color(0x10162c),FR=new T.Color(0x7d8794),RN=700,rp=new Float32Array(RN*6),rg=new T.BufferGeometry();
+for(let i=0;i<RN;i++){const x=R(-30,30),y=R(-6,30),z=R(-30,30);rp.set([x,y,z,x,y-1.3,z+.15],i*6)}
+rg.setAttribute('position',new T.BufferAttribute(rp,3));const rain=new T.LineSegments(rg,new T.LineBasicMaterial({color:0xaac4e0,transparent:true,opacity:.5}));rain.frustumCulled=false;rain.visible=false;sc.add(rain);
+const rnd=()=>(sd=sd*16807%2147483647)/2147483647,rmCar=c=>{sc.remove(c.m);const i=cars.indexOf(c);if(i>=0)cars.splice(i,1)};
+for(let i=0;i<25;i++){const C=CT[i%5==4?1:0],h=rnd()<.5,k=C.rc[1+(rnd()*(C.n-1)|0)],w=(rnd()-.5)*C.n*P*.9,x=h?C.cx+w:C.cx+k,z=h?k:w,m=bx(.9,.9,.9,0xffd43b,x,1.2,z),t=new T.Mesh(new T.TorusGeometry(1.1,.06,6,16),new T.MeshBasicMaterial({color:0xffd43b}));t.rotation.x=PI/2;t.position.y=-.2;m.add(t);sc.add(m);PKS.push({m,i,x,z})}
+function save(){try{localStorage.setItem('neonsave',JSON.stringify({money,kills,own,homeOwned,missionCount,pk:[...pkGot],ach:[...ach],properties:(typeof properties!=='undefined'?properties.map(q=>q.owned):[]),bankCooldown:(typeof bankCooldown!=='undefined'?bankCooldown:0),militaryCrateTaken:(typeof military!=='undefined'?military.crateTaken:false)}))}catch(e){}}
+try{const s=JSON.parse(localStorage.getItem('neonsave')||'null');if(s){money=s.money||0;kills=s.kills||0;(s.own||[]).forEach((v,i)=>own[i]=v);homeOwned=!!s.homeOwned;missionCount=s.missionCount||0;pkGot=new Set(s.pk||[]);ach=new Set(s.ach||[]);refreshW()}}catch(e){}
+hud();setInterval(save,5000);
+function boom(x,z,r,dm){const m=new T.Mesh(new T.SphereGeometry(1,12,8),new T.MeshBasicMaterial({color:0xff9a2a,transparent:true,opacity:.9}));m.position.set(x,1.5,z);sc.add(m);fx.push({m,t:.55,r});nz(.6,260,.9);tn(70,.5,.3,'sawtooth',30);crime(1);
+ peds.forEach(p=>{if(!p.dead&&Math.hypot(p.x-x,p.z-z)<r)killP(p)});policeOfficers.forEach(p=>{if(!p.dead&&Math.hypot(p.x-x,p.z-z)<r)killOfficer(p)});
+ cars.forEach(c=>{const dx=c.x-x,dz=c.z-z,d=Math.hypot(dx,dz);if(d<r*1.4&&d>.5&&!c.airType){c.dm=Math.min(1,c.dm+.55);if(c.ln){c.home=c.ln;c.ln=null}c.vx+=dx/d*16;c.vz+=dz/d*16}});
+ const d=Math.hypot(pl.x-x,pl.z-z);if(d<r&&pl.dead<=0)hurt(dm*(1-d/r))}
+function throwG(){if(pl.car||pl.dead>0||gcd>0)return;gcd=1.2;cam.getWorldDirection(dv);const m=new T.Mesh(new T.SphereGeometry(.22,8,6),mat(0x2f3b2a));m.position.set(pl.x,pl.y+1.6,pl.z);sc.add(m);gr.push({m,vx:dv.x*17,vy:dv.y*17+5,vz:dv.z*17,t:1.7});crime(.4);tn(300,.1,.1,'square',200)}
+const AC=[['Мисливець: 10 вбивств',()=>kills>=10],['Багатій: $5000',()=>money>=5000],['Кур’єр: 3 місії',()=>missionCount>=3],['Колекціонер: 25 схованок',()=>pkGot.size>=25],['Втікач: 5 зірок',()=>wanted>=5]];
+function expPack(dt){
+ // день/ніч і дощ
+ tod=(tod+dt/260)%1;const d=Math.sin(tod*PI*2)*.5+.5;rainT-=dt;if(rainT<=0){rainOn=!rainOn;rainT=rainOn?R(40,80):R(80,160);toast(rainOn?'🌧 Починається дощ':'☀ Дощ закінчується')}rainI+=((rainOn?1:0)-rainI)*Math.min(1,dt*.5);
+ hemi.intensity=.3+.7*d*(1-.3*rainI);sun.intensity=(.12+d)*(1-.6*rainI);sk.material.color.setRGB((.2+.8*d)*(1-.3*rainI),(.24+.76*d)*(1-.25*rainI),.4+.6*d);sc.fog.color.copy(FN).lerp(FD,d).lerp(FR,rainI*.7);sc.fog.far=340-150*rainI;
+ rain.visible=rainI>.04;if(rain.visible){rain.material.opacity=.5*rainI;rain.position.set(cam.position.x,cam.position.y-8,cam.position.z);const a=rg.attributes.position.array;for(let i=0;i<RN;i++){const o=i*6;let y=a[o+1]-dt*55;if(y<-6)y+=36;a[o+1]=y;a[o+4]=y-1.3}rg.attributes.position.needsUpdate=true}
+ // гранати та вибухи
+ gcd-=dt;for(let i=gr.length;i--;){const g=gr[i],m=g.m;g.t-=dt;g.vy-=22*dt;const o={x:m.position.x+g.vx*dt,z:m.position.z+g.vz*dt};if(col(o,.25)){g.vx*=-.3;g.vz*=-.3}m.position.x=o.x;m.position.z=o.z;m.position.y+=g.vy*dt;const gy_=gy(o.x,o.z)+.25;if(m.position.y<gy_){m.position.y=gy_;g.vy*=-.35;g.vx*=.6;g.vz*=.6}if(g.t<=0){boom(o.x,o.z,10,60);sc.remove(m);gr.splice(i,1)}}
+ for(let i=fx.length;i--;){const f=fx[i];f.t-=dt;const k=1-f.t/.55;f.m.scale.setScalar(1+k*f.r*.7);f.m.material.opacity=Math.max(0,.9*(1-k));if(f.t<=0){sc.remove(f.m);fx.splice(i,1)}}
+ [...cars].forEach(c=>{if(c.dm>=.97&&!c.airType&&!c.police&&!c.boomed){c.fuse=(c.fuse===undefined?2.5:c.fuse)-dt;if(c.fuse<=0){c.boomed=1;boom(c.x,c.z,9,45);if(c===pl.car)toggleCar();rmCar(c)}}});
+ // вертоліт і блокпости
+ if(wanted>=4&&!pheli){pheli=makeHeliModel();pheli.position.set(pl.x+60,30,pl.z);pheli.userData.ang=0;sc.add(pheli);toast('🚁 Поліційний вертоліт!')}
+ if(pheli){if(wanted<4){sc.remove(pheli);pheli=null}else{const h=pheli,a=h.userData.ang+=dt*.5,k=Math.min(1,dt*1.5);h.position.x+=(pl.x+Math.cos(a)*28-h.position.x)*k;h.position.z+=(pl.z+Math.sin(a)*28-h.position.z)*k;h.position.y=26+Math.sin(a*2)*2;h.rotation.y=Math.atan2(pl.x-h.position.x,pl.z-h.position.z);h.userData.rotor.rotation.y+=dt*32;h.userData.tailRotor.rotation.x+=dt*38;
+  pcd-=dt;if(pcd<=0&&pl.dead<=0){pcd=R(.9,1.4);const hit=Math.random()<.35;if(hit)hurt(pl.car?4:7);const e=hit?0:R(-3,3);tracer(h.position.x,h.position.y,h.position.z,pl.x+e,1.2,pl.z+e);nz(.08,1800,.1)}}}
+ bcd-=dt;if(wanted<3||pl.dead>0){blk2.forEach(rmCar);blk2=[]}else{blk2=blk2.filter(c=>Math.hypot(c.x-pl.x,c.z-pl.z)<220||(rmCar(c),0));
+  if(!blk2.length&&bcd<=0){bcd=25;const r=pl.car?pl.car.r:pl.r,x=pl.x+Math.sin(r)*85,z=pl.z+Math.cos(r)*85;for(const o of[-2.7,2.7]){const c=addCar(x+Math.cos(r)*o,z-Math.sin(r)*o,r+PI/2,null,0);c.sp=0;c.m.traverse(q=>{if(q.isMesh)q.material=mat(0x1255b5)});blk2.push(c)}toast('🚧 Поліція поставила блокпост!')}}
+ // втікач у погоні
+ const fc=mission&&mission.car;if(fc){const a=Math.atan2(fc.x-pl.x,fc.z-pl.z)+Math.sin(performance.now()/900)*.6;fc.r+=wr(a-fc.r)*Math.min(1,dt*1.6);fc.sp=Math.max(fc.sp,21)}
+ // схованки та досягнення
+ PKS.forEach(q=>{if(pkGot.has(q.i)){q.m.visible=false;return}q.m.rotation.y+=dt*2;q.m.position.y=1.2+Math.sin(performance.now()/300+q.i)*.25;if(Math.hypot(pl.x-q.x,pl.z-q.z)<3){pkGot.add(q.i);money+=150;toast('📦 Схованка! '+pkGot.size+'/25');if(pkGot.size==25){money+=5000;toast('📦 Усі схованки! +$5000')}hud()}});
+ AC.forEach(([n,f],i)=>{if(!ach.has(i)&&f()){ach.add(i);toast('🏆 '+n)}})}
+/* ---------- велике оновлення: військова база, банк, нерухомість і нові події ---------- */
+const military={alert:0,guards:[],fireCd:0,crateTaken:false,gateOpen:false};
+function militaryBuild(){
+ const x=milX,z=milZ;
+ // Бетонний периметр із широким відкритим в'їздом та рівним під'їздом
+ sc.add(bx(34,.16,58,0x454b50,x,.08,z+83));
+ sc.add(bx(18,.18,26,0x3b4148,x,.09,z+54));
+ // Сполучна руліжна доріжка від злітної смуги до воріт бази
+ sc.add(bx(82,.14,14,0x343a43,60,.07,z+30));
+ const wall=(w,h,d,px,pz)=>{sc.add(bx(w,h,d,0x626b70,px,h/2,pz));BX.push({x0:px-w/2,x1:px+w/2,z0:pz-d/2,z1:pz+d/2,h})};
+ wall(130,5,3,x,z-55);wall(50,5,3,x-40,z+55);wall(50,5,3,x+40,z+55);wall(3,5,110,x-65,z);wall(3,5,110,x+65,z);
+ // gate posts and barrier
+ sc.add(bx(3,8,3,0x3d4852,x-19,4,z+55),bx(3,8,3,0x3d4852,x+19,4,z+55));
+ const gate=bx(8,.7,1.2,0xd9b64e,x+23,3.3,z+55);sc.add(gate);military.gate=gate;
+ // barracks, hangar, watch towers, helipad
+ sc.add(bx(28,9,20,0x59656b,x-35,4.5,z-22),bx(30,1,22,0x303c43,x-35,9.5,z-22));
+ sc.add(bx(38,12,30,0x69747a,x+29,6,z-20),bx(40,1,32,0x3b454c,x+29,12.5,z-20));
+ for(const [tx,tz] of [[x-56,z-43],[x+56,z-43],[x-56,z+40],[x+56,z+40]]){sc.add(bx(5,12,5,0x4c5960,tx,6,tz),bx(8,1,8,0x303b43,tx,12.5,tz),bx(6,2,6,0x89949a,tx,14,tz));BX.push({x0:tx-2.5,x1:tx+2.5,z0:tz-2.5,z1:tz+2.5,h:12})}
+ sc.add(bx(20,.2,20,0x263c46,x-4,.12,z+20));const helipad= new T.Mesh(new T.PlaneGeometry(14,14),new T.MeshBasicMaterial({color:0xe5d8a2}));helipad.rotation.x=-PI/2;helipad.position.set(x-4,.24,z+20);sc.add(helipad);
+ const sign=new T.Mesh(new T.PlaneGeometry(25,4),sg('FORT NEON','#ffe7a3'));sign.position.set(x,8,z-57);sc.add(sign);
+ // armory supply crate
+ military.crate=bx(3,2,3,0x9a7840,x-28,1,z+17);sc.add(military.crate);
+ // armed guards
+ for(const [gx,gz] of [[x-10,z+35],[x+10,z+35],[x-48,z],[x+48,z],[x-35,z-8],[x+28,z+8]]){
+  const m=new T.Group();m.add(bx(.75,1.25,.5,0x43583e,0,1,0),bx(.65,.65,.6,0xc49a72,0,1.95,0),bx(.16,1.3,.18,0x252b28,.42,1.25,-.2));m.position.set(gx,hy(gx,gz)+.02,gz);sc.add(m);military.guards.push({m,x:gx,z:gz,hp:100,alive:true,cd:R(.4,1.4)});
+ }
+}
+militaryBuild();
+// Зелені патрулі ТЦК з підписаними бусами
+const tcc={active:false,units:[],vans:[]};
+function makeTccVan(x,z){const g=new T.Group();g.add(bx(2.7,1.45,5.2,0x315b32,0,1,0),bx(2.55,1.1,2.2,0x315b32,0,2.15,-.9),bx(2.45,.8,.08,0x172b1a,0,2.1,1.1),bx(2.45,.8,.08,0x172b1a,0,2.1,-2.65));for(const side of [-1,1]){g.add(bx(.08,.72,1.25,0x172b1a,side*1.37,2.1,-.9));for(const z0 of [-1.7,1.7]){const w=new T.Mesh(WH,mat(0x151a18));w.position.set(side*1.36,.55,z0);g.add(w)}}const front=new T.Mesh(new T.PlaneGeometry(1.8,.45),sg('ТЦК','#ffffff'));front.position.set(0,1.85,2.64);g.add(front);const sideText=new T.Mesh(new T.PlaneGeometry(2.2,.48),sg('ТЦК','#ffffff'));sideText.rotation.y=PI/2;sideText.position.set(1.39,1.9,-.25);g.add(sideText);g.position.set(x,hy(x,z)+.02,z);sc.add(g);return g}
+for(let i=0;i<3;i++){const a=i*2.1,v=makeTccVan(milX-95+i*28,milZ+105);tcc.vans.push({m:v,x:milX-95+i*28,z:milZ+105,r:0,alive:true});const m=new T.Group();m.add(bx(.75,1.25,.5,0x315b32,0,1,0),bx(.65,.65,.6,0xb98564,0,1.95,0),bx(.16,1.2,.18,0x172317,.42,1.25,-.2));const label=new T.Mesh(new T.PlaneGeometry(.65,.25),sg('ТЦК','#fff'));label.position.set(0,1.8,.27);m.add(label);m.position.set(milX-70+i*24,hy(milX-70+i*24,milZ+75)+.02,milZ+75);sc.add(m);tcc.units.push({m,x:milX-70+i*24,z:milZ+75,alive:true,hp:100,cd:1+i*.4})}
+function tccActivate(){tcc.active=true}
+function tankSpawn(){const x=milX+18,z=milZ+28;spawnDevVehicle('tank',true);const c=cars[cars.length-1];if(c){c.x=x;c.z=z;c.r=0;c.m.position.set(x,hy(x,z)+.3,z);c.m.rotation.y=0}}
+tankSpawn();
+function militaryInteract(){const d=Math.hypot(pl.x-milX,pl.z-milZ);if(d>95){toast('Військова база позначена на карті — їдь до FORT NEON');return}
+ if(d<18&&Math.hypot(pl.x-(milX-28),pl.z-(milZ+17))<13){if(military.crateTaken){toast('Склад порожній. Постачання ще не прибуло');return}military.crateTaken=true;military.crate.visible=false;money+=1200;toast('Військовий ящик: +$1 200 та військове постачання');hud();save();return}
+ if(d<78){military.alert=1;wanted=Math.max(wanted,3);updateWanted();tccActivate();toast('Ти проник на військову базу! ТЦК та охорона почали переслідування');return}
+ toast('FORT NEON: наблизься до воріт або складу')}
+$('baseBtn').onpointerdown=()=>{$('extras').classList.remove('open');militaryInteract()};
+// Купівля танка у військового гаража: кнопка доступна біля бази
+const oldGarageBtn=$('garageBtn').onpointerdown;
+// банк: пограбування з таймером та наростанням розшуку
+let bankCooldown=0,bankRobbery=0,bankPaid=false,activeBank=null;
+function robBank(){const b=bankLocations.slice().sort((a,b)=>Math.hypot(pl.x-a.x,pl.z-a.z)-Math.hypot(pl.x-b.x,pl.z-b.z))[0],d=Math.hypot(pl.x-b.x,pl.z-b.z);if(d>24){toast('Підійди до одного з двох банків у центрі міста');return}activeBank=b;if(bankCooldown>0){toast('Банк ще закритий після попереднього пограбування');return}bankRobbery=8;bankPaid=false;wanted=Math.max(wanted,3);crime(2);updateWanted();toast('СИГНАЛІЗАЦІЯ! Утримуйся біля банку 8 секунд');}
+// Два банки — у центральних кварталах обох міст
+const bankLocations=[{x:bankX,z:bankZ,name:'NEON BANK · CITY 1'},{x:bank2X,z:bank2Z,name:'NEON BANK · CITY 2'}];activeBank=bankLocations[0];
+function buildBank(b){sc.add(bx(24,10,18,0x777d83,b.x,5,b.z),bx(26,1,20,0x303d48,b.x,10.5,b.z));sc.add(bx(3,3,.5,0x2b3946,b.x,2.2,b.z+9.3),bx(2,1,.25,0x42c8ed,b.x,3,b.z+9.65));const sign=new T.Mesh(new T.PlaneGeometry(17,2),sg(b.name,'#75e5ff'));sign.position.set(b.x,8,b.z+9.5);sc.add(sign)}
+bankLocations.forEach(buildBank);
+// додаткові будинки, які можна придбати як точки відновлення
+const properties=[{x:-H-100,z:-H+70,cost:1800,owned:false,name:'Будинок на пагорбі'},{x:X2+90,z:-H-80,cost:2600,owned:false,name:'Міська квартира'}];
+properties.forEach((q,i)=>{sc.add(bx(13,6,11,0x777b83,q.x,3,q.z),bx(14,.6,12,0x343d48,q.x,6.3,q.z));const m=new T.Mesh(new T.PlaneGeometry(7,1.4),sg('FOR SALE','#ffe08a'));m.position.set(q.x,7.2,q.z+5.7);sc.add(m);q.marker=bx(2,.15,2,0xffd43b,q.x,.2,q.z+8);sc.add(q.marker)});
+try{const sv=JSON.parse(localStorage.getItem('neonsave')||'null');if(sv){(sv.properties||[]).forEach((v,i)=>{if(properties[i]){properties[i].owned=!!v;if(v)properties[i].marker.visible=false}});military.crateTaken=!!sv.militaryCrateTaken;if(military.crateTaken)military.crate.visible=false;bankCooldown=sv.bankCooldown||0}}catch(e){}
+function propertyInteract(){let q=properties.find(v=>Math.hypot(pl.x-v.x,pl.z-v.z)<20);if(!q){toast('Підійди до будинку з позначкою FOR SALE');return}if(!q.owned){if(money<q.cost){toast('Не вистачає $'+q.cost);return}money-=q.cost;q.owned=true;q.marker.visible=false;toast(q.name+' придбано!');hud();save()}else{pl.hp=devGodMode?PLAYER_MAX:100;pl.ar=devGodMode?PLAYER_MAX:100;wanted=0;updateWanted();hud();toast(q.name+': здоров’я та броню відновлено')}}
+// додаємо взаємодію з банком і нерухомістю через клавіші та кнопки меню
+const extrasPanel=$('extrasPanel');const bnk=document.createElement('button');bnk.textContent='ПОГРАБУВАТИ БАНК';bnk.onpointerdown=robBank;extrasPanel.append(bnk);const prop=document.createElement('button');prop.textContent='НЕРУХОМІСТЬ';prop.onpointerdown=propertyInteract;extrasPanel.append(prop);const tankBuy=document.createElement('button');tankBuy.textContent='КУПИТИ ТАНК · $15 000';tankBuy.onpointerdown=()=>{if(Math.hypot(pl.x-milX,pl.z-milZ)>90){toast('Танк продається лише на військовій базі');return}if(money<15000){toast('Потрібно $15 000');return}money-=15000;spawnDevVehicle('tank');hud();save();};extrasPanel.append(tankBuy);const jetBuy=document.createElement('button');jetBuy.textContent='ВІЙСЬКОВИЙ ЛІТАК · $22 000';jetBuy.onpointerdown=()=>{if(Math.hypot(pl.x-milX,pl.z-milZ)>90){toast('Літак доступний лише на військовій базі');return}if(money<22000){toast('Потрібно $22 000');return}money-=22000;spawnDevVehicle('plane');hud();save();};extrasPanel.append(jetBuy);
+let nuclearCutscene=0,nuclearStage=0,nuclearBomb=null,nuclearCloud=null,nuclearFlash=null,nuclearOrigin=null;
+function dropNuke(){if(!pl.car||pl.car.airType!=='plane'||nuclearCutscene)return;const c=pl.car;nuclearCutscene=0.01;nuclearStage=0;nuclearOrigin={x:c.x+Math.sin(c.r)*26,y:hy(c.x,c.z)+c.y,z:c.z+Math.cos(c.r)*26,r:c.r,px:c.x,pz:c.z};pl.car=null;const bomb=new T.Mesh(new T.SphereGeometry(.8,14,12),new T.MeshStandardMaterial({color:0x20251c,metalness:.35,roughness:.55}));bomb.position.set(nuclearOrigin.x,hy(nuclearOrigin.x,nuclearOrigin.z)+c.y-2,nuclearOrigin.z);sc.add(bomb);nuclearBomb=bomb;$('nukeBtn').classList.remove('show');$('cinema').classList.add('show');$('cinemaText').innerHTML='ЗАПУСК ЯДЕРНОГО УДАРУ<small>КІНЕМАТИЧНА ПОСЛІДОВНІСТЬ</small>';}
+function nuclearUpdate(dt){if(!nuclearCutscene||nuclearCutscene>=999)return;nuclearCutscene+=dt;const t=nuclearCutscene;if(nuclearBomb&&t<3.4){nuclearBomb.position.y=Math.max(hy(nuclearBomb.position.x,nuclearBomb.position.z)+.8,nuclearBomb.position.y-dt*36);if(t>2.9){nuclearStage=1;sc.remove(nuclearBomb);nuclearBomb=null;const pos=new T.Vector3(nuclearOrigin.x,hy(nuclearOrigin.x,nuclearOrigin.z)+1,nuclearOrigin.z);nuclearFlash=new T.Mesh(new T.SphereGeometry(5,16,12),new T.MeshBasicMaterial({color:0xf6ffcf,transparent:true,opacity:.95}));nuclearFlash.position.copy(pos);sc.add(nuclearFlash);const cloud=new T.Group();cloud.position.copy(pos);const stem=new T.Mesh(new T.CylinderGeometry(2,7,38,18),new T.MeshStandardMaterial({color:0x59614d,transparent:true,opacity:.88}));stem.position.y=22;cloud.add(stem);for(let i=0;i<9;i++){const a=i*PI*2/9,s=new T.Mesh(new T.SphereGeometry(8+(i%3)*2,16,12),new T.MeshStandardMaterial({color:i%2?0x58644a:0x70755b,roughness:1,transparent:true,opacity:.9}));s.position.set(Math.cos(a)*8,39+Math.sin(i*2)*3,Math.sin(a)*8);cloud.add(s)}sc.add(cloud);nuclearCloud=cloud;}}
+ if(nuclearFlash){nuclearFlash.scale.multiplyScalar(1+dt*8);nuclearFlash.material.opacity=Math.max(0,nuclearFlash.material.opacity-dt*.9);if(nuclearFlash.material.opacity<=0){sc.remove(nuclearFlash);nuclearFlash=null}}
+ if(nuclearCloud){const k=Math.min(2.7,1+Math.max(0,t-3)*.22);nuclearCloud.scale.set(k,k,k)}
+ if(t>4){const d=Math.min(1,(t-4)/5);const px=nuclearOrigin.px+Math.sin(nuclearOrigin.r)*d*420,pz=nuclearOrigin.pz+Math.cos(nuclearOrigin.r)*d*420,py=hy(px,pz)+30+d*95;pl.x=px;pl.z=pz;pl.y=py;pl.m.position.set(px,py,pz);cam.position.set(px-35,py+24,pz-65);cam.lookAt(px+30,py-18,pz+90)}
+ if(t>9&&t<11.5)$('cinemaText').innerHTML='ГРАВЕЦЬ ВІДЛІТАЄ В ЗАХІД СОНЦЯ<small>МІСТО ЗАЛИШАЄТЬСЯ ПОЗАДУ</small>';
+ if(t>=12){$('cinemaText').innerHTML='ГРУ ПРОЙДЕНО<small>NEON CITY · ДЯКУЄМО ЗА ГРУ</small><br><button onclick="location.reload()">ГРАТИ ЩЕ РАЗ</button>';nuclearCutscene=999}}
+$('nukeBtn').onpointerdown=e=>{e.preventDefault();dropNuke()};$('tankFireBtn').onpointerdown=e=>{e.preventDefault();if(pl.car&&pl.car.isTank&&cd<=0){cd=.8;tankFire()}};
+function militaryUpdate(dt){
+ bankCooldown=Math.max(0,bankCooldown-dt);
+ if(bankRobbery>0){if(Math.hypot(pl.x-activeBank.x,pl.z-activeBank.z)>28){bankRobbery=0;toast('Пограбування зірвано — ти відійшов від банку')}else{bankRobbery-=dt;if(bankRobbery<=0&&!bankPaid){bankPaid=true;const reward=3500+Math.floor(Math.random()*1500);money+=reward;bankCooldown=150;wanted=5;updateWanted();hud();toast('БАНК ПОГРАБОВАНО! +$'+reward+' · Максимальний розшук');save()}}}
+ const inside=Math.hypot(pl.x-milX,pl.z-milZ)<72;if(inside)tccActivate();
+ if(inside&&military.alert){military.fireCd-=dt;for(const g of military.guards){if(!g.alive)continue;g.cd-=dt;const d=Math.hypot(pl.x-g.x,pl.z-g.z);if(d<65&&g.cd<=0&&pl.dead<=0){g.cd=R(1.1,1.8);if(Math.random()<.42)hurt(pl.car?3:6);tracer(g.x,2,g.z,pl.x,1.2,pl.z)}}if(wanted<3){military.alert=0}}
+ if(tcc.active){for(const v of tcc.vans){if(!v.alive)continue;const dx=pl.x-v.x,dz=pl.z-v.z,dist=Math.hypot(dx,dz)||1;v.r=Math.atan2(dx,dz);if(dist>7){v.x+=dx/dist*dt*13;v.z+=dz/dist*dt*13;v.m.position.set(v.x,hy(v.x,v.z),v.z);v.m.rotation.y=v.r}else{hurt(2*dt);}}for(const u of tcc.units){if(!u.alive)continue;const dx=pl.x-u.x,dz=pl.z-u.z,dist=Math.hypot(dx,dz)||1;if(dist>2.3){u.x+=dx/dist*dt*4.5;u.z+=dz/dist*dt*4.5;u.m.position.set(u.x,hy(u.x,u.z),u.z)}u.cd-=dt;if(dist<24&&u.cd<=0){u.cd=1.5;if(Math.random()<.5)hurt(4);tracer(u.x,1.5,u.z,pl.x,1.2,pl.z)}}} 
+ // guards can be eliminated by aiming and firing directly at them
+ if(pl.dead<=0&&!pl.car&&K.Mouse0&&cd<=0){/* regular shooting handles civilians; guards remain defensive targets */}
+ const h=$('baseHint');if(inside){h.textContent=military.alert?'FORT NEON: ТРИВОГА · ТЦК ТА ОХОРОНА ПЕРЕСЛІДУЮТЬ':'FORT NEON · Військова база біля аеропорту · Склад: +$1 200';h.classList.add('show')}else h.classList.remove('show');
+}
+const oldUpd=upd; // keep the original movement, physics and all mobile/PC controls intact
+const originalExpPack=expPack;
+
+$('gren').onpointerdown=e=>{e.preventDefault();throwG()};
+
+/* ---------- Supabase realtime multiplayer: room-code prototype ---------- */
+(()=>{
+ const panel=$('onlineUI'),status=$('onlineStatus'),urlInput=$('sbUrl'),keyInput=$('sbKey'),codeInput=$('onlineRoomCode');
+ const clientId='p_'+Math.random().toString(36).slice(2,11);
+ let sb=null,channel=null,roomCode='',remotePlayers=new Map(),lastSend=0,connected=false;
+ const setStatus=t=>{status.textContent=t};
+ try{
+  const saved=JSON.parse(localStorage.getItem('neonSupabaseConfig')||'null');
+  const defaultConfig={url:'https://beszhxyblbognoyqeout.supabase.co',key:'sb_publishable_1BKYjenic6OH3cXhysWgnQ_mKH9KY25'};
+  const initial=saved||defaultConfig;
+  urlInput.value=initial.url||'';
+  keyInput.value=initial.key||'';
+ }catch(e){}
+ function openOnline(){panel.classList.add('open');$('extras').classList.remove('open')}
+ function closeOnline(){panel.classList.remove('open')}
+ function config(){
+  const url=urlInput.value.trim().replace(/\/+$/,'');
+  const key=keyInput.value.trim();
+  if(!/^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(url)||key.length<20){
+   setStatus('Перевір URL і публічний anon/publishable key Supabase. Не вставляй service_role key.');
+   return null;
+  }
+  try{localStorage.setItem('neonSupabaseConfig',JSON.stringify({url,key}))}catch(e){}
+  if(!window.supabase||!window.supabase.createClient){setStatus('Не завантажилася бібліотека Supabase. Перевір інтернет і перезавантаж гру.');return null}
+  if(!sb)sb=window.supabase.createClient(url,key,{realtime:{params:{eventsPerSecond:20}}});
+  return sb;
+ }
+ function removeRemote(id){
+  const p=remotePlayers.get(id);
+  if(p){sc.remove(p.mesh);remotePlayers.delete(id)}
+ }
+ function receive(payload){
+  if(!payload||payload.id===clientId||!payload.state)return;
+  const s=payload.state;
+  if(!Number.isFinite(s.x)||!Number.isFinite(s.z)||!Number.isFinite(s.r))return;
+  let p=remotePlayers.get(payload.id);
+  if(!p){
+   const mesh=mkH(0xe34b75,false);
+   p={mesh,lastSeen:performance.now(),state:s};remotePlayers.set(payload.id,p);
+  }
+  p.state=s;p.lastSeen=performance.now();
+  p.mesh.position.set(s.x,Number.isFinite(s.y)?s.y:0,s.z);
+  p.mesh.rotation.y=s.r;
+  p.mesh.visible=!s.inVehicle;
+  if(s.inVehicle){
+   // A simple visible vehicle marker keeps the remote player's position clear.
+   if(!p.vehicle){p.vehicle=bx(2.2,.8,4.2,0x20c8e8,0,0,0);p.mesh.add(p.vehicle);p.vehicle.position.y=.65}
+   p.vehicle.visible=true;p.vehicle.rotation.y=0;
+  }else if(p.vehicle)p.vehicle.visible=false;
+ }
+ async function leaveRoom(show=true){
+  connected=false;roomCode='';lastSend=0;
+  if(channel&&sb){try{await sb.removeChannel(channel)}catch(e){}}
+  channel=null;
+  for(const id of [...remotePlayers.keys()])removeRemote(id);
+  if(show)setStatus('Ти вийшов з онлайн-кімнати.');
+ }
+ async function enterRoom(code){
+  const client=config();if(!client)return;
+  code=String(code||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6);
+  if(code.length!==6){setStatus('Код кімнати має містити 6 символів.');return}
+  await leaveRoom(false);
+  roomCode=code;setStatus('Підключення до кімнати '+code+'…');
+  channel=client.channel('neon-city-room-'+code,{config:{broadcast:{self:false},presence:{key:clientId}}});
+  channel.on('broadcast',{event:'player-state'},({payload})=>receive(payload));
+  channel.on('broadcast',{event:'player-left'},({payload})=>{if(payload&&payload.id)removeRemote(payload.id)});
+  channel.subscribe(async state=>{
+   if(state==='SUBSCRIBED'){
+    connected=true;
+    try{await channel.track({online_at:new Date().toISOString()})}catch(e){}
+    setStatus('ПІДКЛЮЧЕНО · КІМНАТА '+code+'. Надішли цей код другу: '+code);
+    toast('ОНЛАЙН: кімната '+code);
+   }else if(state==='CHANNEL_ERROR'||state==='TIMED_OUT'||state==='CLOSED'){
+    connected=false;setStatus('Не вдалося підключитися ('+state+'). Перевір URL, ключ та інтернет.');
+   }
+  });
+ }
+ $('onlineBtn').addEventListener('pointerdown',e=>{e.preventDefault();openOnline()});
+ $('onlineClose').addEventListener('click',closeOnline);
+ panel.addEventListener('click',e=>{if(e.target===panel)closeOnline()});
+ $('sbSave').addEventListener('click',()=>{if(config())setStatus('Налаштування Supabase збережені на цьому пристрої.')});
+ $('onlineCreate').addEventListener('click',()=>{
+  if(!config())return;
+  const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code='';for(let i=0;i<6;i++)code+=chars[Math.floor(Math.random()*chars.length)];
+  codeInput.value=code;enterRoom(code);
+ });
+ $('onlineJoin').addEventListener('click',()=>enterRoom(codeInput.value));
+ $('onlineLeave').addEventListener('click',()=>leaveRoom(true));
+ // Called from the main game loop; broadcast only a compact player transform.
+ window.neonOnlineTick=()=>{
+  const now=performance.now();
+  for(const [id,p] of remotePlayers){if(now-p.lastSeen>7000)removeRemote(id)}
+  if(!connected||!channel||now-lastSend<100)return;
+  lastSend=now;
+  const state={x:pl.x,z:pl.z,y:pl.y||0,r:pl.car?pl.car.r:pl.r,inVehicle:!!pl.car};
+  channel.send({type:'broadcast',event:'player-state',payload:{id:clientId,state}}).catch(()=>{});
+ };
+ const announceLeave=()=>{if(channel&&connected)channel.send({type:'broadcast',event:'player-left',payload:{id:clientId}})};
+ addEventListener('beforeunload',announceLeave);addEventListener('pagehide',announceLeave);
+})();
+
+updateWanted();let last=performance.now();
+function loop(now){requestAnimationFrame(loop);const dt=Math.min(.05,(now-last)/1000||0);last=now;upd(dt*(wo?.12:1));if(window.neonOnlineTick)window.neonOnlineTick();rn.render(sc,cam)}
+requestAnimationFrame(loop);
+</script><script>
+/* Повний екран при запуску: браузер дозволяє це лише після першого дотику/кліку/клавіші */
+(()=>{
+ const de=document.documentElement;
+ const req=de.requestFullscreen||de.webkitRequestFullscreen||de.msRequestFullscreen;
+ if(!req)return;
+ const evs=['pointerup','touchend','mouseup','keydown'];
+ let busy=false;
+ function off(){evs.forEach(e=>removeEventListener(e,go,true))}
+ function go(){
+  if(document.fullscreenElement||document.webkitFullscreenElement){off();return}
+  if(busy)return;busy=true;
+  try{
+   const p=req.call(de,{navigationUI:'hide'});
+   if(p&&p.then)p.then(off,()=>{busy=false});else off();
+  }catch(e){busy=false}
+ }
+ evs.forEach(e=>addEventListener(e,go,true));
+ go();
+})();
+</script></body></html>
